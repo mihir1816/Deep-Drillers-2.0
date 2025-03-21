@@ -1,52 +1,38 @@
 const mongoose = require('mongoose');
 
-const stationSchema = new mongoose.Schema({
+const StationSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: [true, 'Please add a station name'],
+    trim: true,
+    maxlength: [50, 'Name cannot be more than 50 characters']
+  },
+  address: {
+    type: String,
+    required: [true, 'Please add an address']
   },
   location: {
     type: {
       type: String,
-      enum: ['Point'],
-      default: 'Point'
+      enum: ['Point']
     },
     coordinates: {
       type: [Number],
-      required: true
-    },
-    address: {
-      street: String,
-      city: String,
-      state: String,
-      zipCode: String,
-      country: String
+      required: true,
+      index: '2dsphere'
     }
   },
-  capacity: {
-    total: Number,
-    available: Number
-  },
-  vehicles: [{
-    type: mongoose.Schema.Types.ObjectId,
+  availableVehicles: [{
+    type: mongoose.Schema.ObjectId,
     ref: 'Vehicle'
   }],
-  admins: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
-  }],
-  status: {
-    type: String,
-    enum: ['ACTIVE', 'MAINTENANCE', 'CLOSED'],
-    default: 'ACTIVE'
-  },
-  operatingHours: {
-    open: String,
-    close: String
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// Create geospatial index
-stationSchema.index({ location: '2dsphere' });
+// Create 2dsphere index for location field
+StationSchema.index({ location: '2dsphere' });
 
-module.exports = mongoose.model('Station', stationSchema); 
+module.exports = mongoose.model('Station', StationSchema); 

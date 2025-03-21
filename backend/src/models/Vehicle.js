@@ -6,18 +6,9 @@ const vehicleSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
-  model: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    required: true,
-    enum: ['CAR', 'BIKE', 'SCOOTER']
-  },
   status: {
     type: String,
-    enum: ['AVAILABLE', 'BOOKED', 'MAINTENANCE', 'CHARGING'],
+    enum: ['AVAILABLE', 'UNAVAILABLE'],
     default: 'AVAILABLE'
   },
   station: {
@@ -32,7 +23,6 @@ const vehicleSchema = new mongoose.Schema({
       min: 0,
       max: 100
     },
-    lastCharged: Date
   },
   damages: [{
     description: String,
