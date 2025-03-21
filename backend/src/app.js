@@ -28,7 +28,7 @@ const authRoutes = require('./routes/auth');
 // Uncomment these as you implement them
 // const userRoutes = require('./routes/users');
 // const vehicleRoutes = require('./routes/vehicles');
-// const stationRoutes = require('./routes/stations');
+const stationRoutes = require('./routes/location');
 // const contractRoutes = require('./routes/contracts');
 const kycRoutes = require('./routes/kyc');
 
@@ -37,7 +37,7 @@ app.use('/api/auth', authRoutes);
 // Uncomment these as you implement them
 // app.use('/api/users', userRoutes);
 // app.use('/api/vehicles', vehicleRoutes);
-// app.use('/api/stations', stationRoutes);
+app.use('/api/stations', stationRoutes);
 // app.use('/api/contracts', contractRoutes);
 app.use('/api/kyc', kycRoutes);
 

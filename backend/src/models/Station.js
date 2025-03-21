@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Vehicle = require('./Vehicle'); 
 
 const StationSchema = new mongoose.Schema({
   name: {

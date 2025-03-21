@@ -16,7 +16,7 @@ const calculateDistance = (lat1, lon1, lat2, lon2) => {
 // Get nearby stations
 exports.getNearbyStations = async (req, res) => {
   try {
-    const { latitude, longitude, radius = 10 } = req.query; // radius in km, default 10km
+    const { latitude, longitude, radius = 10 } = req.body; // radius in km, default 10km
 
     if (!latitude || !longitude) {
       return res.status(400).json({
@@ -73,7 +73,7 @@ exports.getNearbyStations = async (req, res) => {
 // Get station details
 exports.getStationDetails = async (req, res) => {
   try {
-    const station = await Station.findById(req.params.id)
+    const station = await Station.findById(req.body.id)
       .populate('availableVehicles')
       .populate('reviews.user', 'name');
 
@@ -100,19 +100,19 @@ exports.getStationDetails = async (req, res) => {
 // Search stations by name or address
 exports.searchStations = async (req, res) => {
   try {
-    const { query } = req.query;
+    const { name } = req.body;
 
-    if (!query) {
+    if (!name) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide a search query'
+        message: 'Please provide a search name'
       });
     }
 
     const stations = await Station.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { address: { $regex: query, $options: 'i' } }
+        { name: { $regex: name, $options: 'i' } },
+        { address: { $regex: name, $options: 'i' } }
       ]
     }).populate('availableVehicles');
 
