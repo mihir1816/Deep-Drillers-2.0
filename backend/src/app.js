@@ -28,7 +28,7 @@ const authRoutes = require('./routes/auth');
 // Uncomment these as you implement them
 // const userRoutes = require('./routes/users');
 // const vehicleRoutes = require('./routes/vehicles');
-// const stationRoutes = require('./routes/stations');
+const locationRoutes = require('./routes/location');
 // const contractRoutes = require('./routes/contracts');
 const kycRoutes = require('./routes/kyc');
 const otpRoutes = require('./routes/otp');
@@ -38,10 +38,20 @@ app.use('/api/auth', authRoutes);
 // Uncomment these as you implement them
 // app.use('/api/users', userRoutes);
 // app.use('/api/vehicles', vehicleRoutes);
-// app.use('/api/stations', stationRoutes);
+app.use('/api/locations', locationRoutes);
 // app.use('/api/contracts', contractRoutes);
 app.use('/api/kyc', kycRoutes);
 app.use('/api/otp', otpRoutes);
+
+// Log all incoming requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`, {
+    query: req.query,
+    body: req.body,
+    headers: req.headers
+  });
+  next();
+});
 
 // Basic route for testing
 app.get('/', (req, res) => {
@@ -50,11 +60,11 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error('Global error handler:', err);
   res.status(500).json({
     success: false,
-    message: 'Something went wrong!',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    message: 'Internal server error',
+    error: err.message
   });
 });
 
@@ -73,4 +83,6 @@ const startServer = async () => {
   }
 };
 
-startServer(); 
+startServer();
+
+module.exports = app; 
