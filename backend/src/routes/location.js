@@ -12,7 +12,7 @@ const router = express.Router();
 // router.get('/search', protect, searchStations);
 // router.get('/:id', protect, getStationDetails);
 
-router.get('/nearby' , getNearbyStations);
+router.get('/nearby', getNearbyStations);
 router.get('/search', searchStations);
 router.get('/:id', getStationDetails);
 
