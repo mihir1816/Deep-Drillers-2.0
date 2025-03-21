@@ -31,6 +31,7 @@ const authRoutes = require('./routes/auth');
 // const stationRoutes = require('./routes/stations');
 // const contractRoutes = require('./routes/contracts');
 const kycRoutes = require('./routes/kyc');
+const otpRoutes = require('./routes/otp');
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -40,6 +41,7 @@ app.use('/api/auth', authRoutes);
 // app.use('/api/stations', stationRoutes);
 // app.use('/api/contracts', contractRoutes);
 app.use('/api/kyc', kycRoutes);
+app.use('/api/otp', otpRoutes);
 
 // Basic route for testing
 app.get('/', (req, res) => {

@@ -22,14 +22,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  isPhoneVerified: {
+    type: Boolean,
+    default: false
+  },
   drivingLicense: {
     number: {
       type: String,
-      required: true
+      // required: true
     },
     image: {
       type: String,
-      required: true
+      // required: true
     },
     verified: {
       type: Boolean,
@@ -67,7 +71,8 @@ const userSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+
 });
 
 // Hash password before saving

@@ -12,48 +12,74 @@ const generateToken = (id) => {
 // Register user
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, phone, drivingLicense } = req.body;
-
-    // Validate required fields
-    if (!name || !email || !password) {
+    console.log("Registration request received:", req.body);
+    
+    // Extract fields from request body
+    const { name, email, phone, password, drivingLicense } = req.body;
+    
+    // Check if required fields are provided
+    if (!name || !email || !phone || !password) {
+      console.log("Missing fields:", { 
+        nameProvided: !!name, 
+        emailProvided: !!email, 
+        phoneProvided: !!phone, 
+        passwordProvided: !!password 
+      });
+      
       return res.status(400).json({
         success: false,
-        message: 'Please provide all required fields'
+        message: "Please provide all required fields"
       });
     }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({
+    
+    // Generate username from email if not provided
+    const username = req.body.username || email.split('@')[0];
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    
+    if (existingUser) {
+      return res.status(409).json({
         success: false,
-        message: 'Please provide a valid email address'
+        message: "User with this email already exists"
       });
     }
-
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email already registered'
-      });
-    }
-
-    // Create user
+    
+    // Create new user with the fields
     const user = await User.create({
-      name,
+      name,  // Map name to fullname
       email,
-      password,
       phone,
+      username,
+      password,
       drivingLicense
     });
-
-    sendTokenResponse(user, 201, res);
+    
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET || 'your-fallback-secret',
+      { expiresIn: process.env.JWT_EXPIRY || '3d' }
+    );
+    
+    // Return success response
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        _id: user._id,
+        fullname: user.fullname,
+        email: user.email,
+        phone: user.phone,
+        username: user.username
+      },
+      token
+    });
   } catch (error) {
-    res.status(500).json({
+    console.error("Registration error:", error);
+    return res.status(500).json({
       success: false,
-      message: 'Error creating user',
+      message: "User registration failed",
       error: error.message
     });
   }
@@ -64,37 +90,60 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate email and password
+    // Validate input
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide email and password'
+        message: "Please provide email and password"
       });
     }
 
-    // Check if user exists
-    const user = await User.findOne({ email }).select('+password');
+    // Find user by email
+    const user = await User.findOne({ email }).select("+password");
+    
     if (!user) {
-      return res.status(401).json({
+      return res.status(404).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "User not found"
       });
     }
 
-    // Check password
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
+    // Check if password matches
+    // Make sure this method exists on your User model
+    const isPasswordMatch = await user.comparePassword(password);
+    if (!isPasswordMatch) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid credentials'
+        message: "Invalid credentials"
       });
     }
 
-    sendTokenResponse(user, 200, res);
+    // Define a hardcoded secret key for development
+    // IMPORTANT: In production, you should use environment variables
+    const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
+    
+    // Create JWT token with the hardcoded secret
+    const token = jwt.sign(
+      { userId: user._id, email: user.email },
+      JWT_SECRET,
+      { expiresIn: "3d" }
+    );
+
+    // Remove password from response
+    user.password = undefined;
+
+    // Send response
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      user,
+      token
+    });
   } catch (error) {
-    res.status(500).json({
+    console.error("Login error:", error);
+    return res.status(500).json({
       success: false,
-      message: 'Error logging in',
+      message: "Error logging in",
       error: error.message
     });
   }
@@ -103,16 +152,25 @@ exports.login = async (req, res) => {
 // Get current logged in user
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id);
-
-    res.status(200).json({
+    // The user should be available from the authentication middleware
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    return res.status(200).json({
       success: true,
-      data: user
+      user
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("Get current user error:", error);
+    return res.status(500).json({
       success: false,
-      message: 'Error fetching user data',
+      message: "Failed to get user information",
       error: error.message
     });
   }
@@ -196,3 +254,4 @@ const sendTokenResponse = (user, statusCode, res) => {
       }
     });
 }; 
+

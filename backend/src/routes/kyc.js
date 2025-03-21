@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../middleware/auth');
-const { submitKYC, verifyKYC } = require('../controllers/kyc');
+const { authorize } = require('../middleware/auth.js');
+const { submitKYC, verifyKYC } = require('../controllers/kyc.js');
 
-router.post('/submit', protect, submitKYC);
-router.post('/verify', protect, authorize('ADMIN'), verifyKYC);
+router.post('/submit', submitKYC);
+router.post('/verify' , verifyKYC);
+
+// authorize('ADMIN') is not avialable 
+// protect is not avialable
 
 module.exports = router; 

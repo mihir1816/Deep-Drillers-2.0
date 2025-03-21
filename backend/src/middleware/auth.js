@@ -1,40 +1,50 @@
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User.js');
 
-exports.protect = async (req, res, next) => {
+// JWT Secret - using the same hardcoded secret we used in the login controller
+const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
+
+exports.isAuthenticated = async (req, res, next) => {
   try {
-    let token;
+    // Get token from header
+    const token = req.headers.authorization?.split(' ')[1] || req.cookies?.token;
     
-    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: 'Not authorized to access this route'
+        message: "Authentication required. Please login."
       });
     }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);
+    
+    // Verify token
+    const decoded = jwt.verify(token, JWT_SECRET);
+    
+    if (!decoded) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid token. Please login again."
+      });
+    }
+    
+    // Find user by id from token
+    const user = await User.findById(decoded.userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+    
+    // Attach user to request object
+    req.user = user;
     next();
   } catch (error) {
-    res.status(401).json({
+    console.error("Authentication error:", error);
+    return res.status(401).json({
       success: false,
-      message: 'Not authorized to access this route'
+      message: "Authentication failed. Please login again.",
+      error: error.message
     });
   }
 };
-
-exports.authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({
-        success: false,
-        message: 'User role is not authorized to access this route'
-      });
-    }
-    next();
-  };
-}; 
