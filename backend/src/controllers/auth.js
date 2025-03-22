@@ -41,6 +41,67 @@ const generateToken = (id) => {
     });
 };
 
+exports.verifyToken = async (req, res) => {
+    try {
+      // Get token from header
+      const token = req.header('Authorization')?.replace('Bearer ', '');
+      
+      if (!token) {
+        return res.status(401).json({
+          success: false,
+          message: 'No token provided'
+        });
+      }
+      
+      // Verify token
+      const decoded = jwt.verify(token, JWT_SECRET);
+      
+      // Find user by id
+      const user = await User.findById(decoded.userId);
+      
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found'
+        });
+      }
+      
+      return res.status(200).json({
+        success: true,
+        message: 'Token is valid',
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role
+        }
+      });
+      
+    } catch (error) {
+      console.error('Token verification error:', error);
+      
+      if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Invalid token'
+        });
+      }
+      
+      if (error.name === 'TokenExpiredError') {
+        return res.status(401).json({
+          success: false,
+          message: 'Token expired'
+        });
+      }
+      
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to verify token',
+        error: error.message
+      });
+    }
+  };
+
 // Register user
 exports.register = async (req, res) => {
     try {
