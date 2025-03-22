@@ -4,7 +4,7 @@ import ChatbotButton from "../components/ChatbotButton";
 import ChatbotWindow from "../components/ChatbotWindow";
 // Import icons
 import { FaBatteryThreeQuarters, FaCarAlt, FaChargingStation, FaMoneyBillWave, FaBell, FaTools, FaCalendarCheck } from 'react-icons/fa';
-// Import chart components (you'll need to install react-chartjs-2)
+// Import chart components
 import { Bar, Pie } from 'react-chartjs-2';
 // Add these imports at the top of your file
 import {
@@ -109,6 +109,7 @@ const AdminDashboard = () => {
         labels: ['Credit Card', 'Mobile Payment', 'Cash'],
         datasets: [
             {
+                label: 'Payment Methods',
                 data: [65, 25, 10],
                 backgroundColor: [
                     'rgba(54, 162, 235, 0.7)',
@@ -191,6 +192,40 @@ const AdminDashboard = () => {
                         <p className="text-xl font-bold">{stationData.status}</p>
                         <p className="text-sm text-gray-500">{stationData.hours}</p>
                     </div>
+                </div>
+            </div>
+
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
+                {/* E-Bike Pickup Section */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-semibold mb-4">
+                        E-Bike Pickup
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                        Process new e-bike pickups and verify user information
+                    </p>
+                    <Link
+                        to="/admin/pickup"
+                        className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition duration-200"
+                    >
+                        Start Pickup Process
+                    </Link>
+                </div>
+
+                {/* E-Bike Drop-off Section */}
+                <div className="bg-white rounded-lg shadow-md p-6">
+                    <h2 className="text-2xl font-semibold mb-4">
+                        E-Bike Drop-off
+                    </h2>
+                    <p className="text-gray-600 mb-4">
+                        Process e-bike returns and check vehicle condition
+                    </p>
+                    <Link
+                        to="/admin/dropoff"
+                        className="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition duration-200"
+                    >
+                        Start Drop-off Process
+                    </Link>
                 </div>
             </div>
 
@@ -332,6 +367,7 @@ const AdminDashboard = () => {
                                 <Bar 
                                     data={revenueChartData} 
                                     options={{ 
+                                        responsive: true,
                                         maintainAspectRatio: false,
                                         scales: {
                                             y: {
@@ -348,10 +384,12 @@ const AdminDashboard = () => {
                                 <Pie 
                                     data={paymentChartData} 
                                     options={{ 
+                                        responsive: true,
                                         maintainAspectRatio: false,
                                         plugins: {
                                             legend: {
                                                 position: 'bottom',
+                                                display: true
                                             }
                                         }
                                     }} 
@@ -386,77 +424,9 @@ const AdminDashboard = () => {
                         ))}
                     </div>
                 </div>
-
-                {/* Notifications & Alerts */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-semibold mb-4 text-gray-800 flex items-center">
-                        <FaBell className="mr-2" /> Notifications & Alerts
-                    </h2>
-                    <div className="space-y-4">
-                        {notifications.map((notification, index) => (
-                            <div key={index} className="flex items-start p-3 border-b border-gray-100">
-                                <div className={`rounded-full p-2 mr-3 ${
-                                    notification.type === 'alert' ? 'bg-red-100 text-red-500' : 
-                                    notification.type === 'booking' ? 'bg-blue-100 text-blue-500' : 
-                                    notification.type === 'payment' ? 'bg-green-100 text-green-500' : 
-                                    'bg-yellow-100 text-yellow-500'
-                                }`}>
-                                    <FaBell />
-                                </div>
-                                <div className="flex-1">
-                                    <p className="text-sm font-medium">{notification.message}</p>
-                                    <p className="text-xs text-gray-500">{notification.time}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
             </div>
-
-            <div className="grid md:grid-cols-2 gap-8">
-                {/* E-Bike Pickup Section */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-semibold mb-4">
-                        E-Bike Pickup
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                        Process new e-bike pickups and verify user information
-                    </p>
-                    <Link
-                        to="/admin/pickup"
-                        className="block w-full bg-blue-600 text-white text-center py-3 rounded-lg hover:bg-blue-700 transition duration-200"
-                    >
-                        Start Pickup Process
-                    </Link>
-                </div>
-
-                {/* E-Bike Drop-off Section */}
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-semibold mb-4">
-                        E-Bike Drop-off
-                    </h2>
-                    <p className="text-gray-600 mb-4">
-                        Process e-bike returns and check vehicle condition
-                    </p>
-                    <Link
-                        to="/admin/dropoff"
-                        className="block w-full bg-green-600 text-white text-center py-3 rounded-lg hover:bg-green-700 transition duration-200"
-                    >
-                        Start Drop-off Process
-                    </Link>
-                </div>
-            </div>
-
-            {/* Chatbot */}
-            <ChatbotButton onClick={() => setShowChat(true)} />
-            {showChat && (
-                <ChatbotWindow
-                    isAdmin={true}
-                    onClose={() => setShowChat(false)}
-                />
-            )}
         </div>
     );
 };
 
-export default AdminDashboard;
+export { AdminDashboard };

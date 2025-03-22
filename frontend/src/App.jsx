@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import UserDashboard from "./pages/UserDashboard";
-import AdminDashboard from "./pages/AdminDashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import BookingPage from "./pages/BookingPage";
 import LocationsPage from "./pages/LocationsPage";
 import StationVehiclesPage from "./pages/StationVehiclesPage";

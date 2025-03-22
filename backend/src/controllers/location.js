@@ -104,8 +104,7 @@ exports.getStationDetails = async (req, res) => {
     });
 
     const station = await Station.findById(req.params.id)
-      .populate('availableVehicles')
-      .populate('reviews.user', 'name');
+      .populate('availableVehicles');
 
     if (!station) {
       console.log(`GET /:id - Station not found: ${req.params.id}`);
