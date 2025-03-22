@@ -28,16 +28,16 @@ const userSchema = new mongoose.Schema({
     },
     qrCode: {
         type: String,
-        sparse: true,
+        unique: true
     },
     drivingLicense: {
         number: {
             type: String,
-            required: true,
+            // required: true,
         },
         image: {
             type: String,
-            required: true,
+            // required: true,
         },
         verified: {
             type: Boolean,
@@ -99,5 +99,8 @@ userSchema.methods.generateQRCode = function () {
     // You can add additional encryption or hashing here if needed
     return uniqueString;
 };
+
+// Add this after schema definition
+userSchema.index({ qrCode: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model("User", userSchema);

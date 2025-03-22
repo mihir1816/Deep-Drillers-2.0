@@ -3,36 +3,13 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
+const { upload } = require("../middleware/multer.middleware.js");
+const { uploadOnCloudinary } = require("../utils/cloudinary.js");
+const fs = require("fs");
 
 // JWT Secret
 const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
 
-// Configure multer for file upload
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "uploads/licenses");
-    },
-    filename: function (req, file, cb) {
-        cb(null, Date.now() + path.extname(file.originalname));
-    },
-});
-
-const upload = multer({
-    storage: storage,
-    limits: { fileSize: 5000000 }, // 5MB limit
-    fileFilter: function (req, file, cb) {
-        const filetypes = /jpeg|jpg|png/;
-        const extname = filetypes.test(
-            path.extname(file.originalname).toLowerCase()
-        );
-        const mimetype = filetypes.test(file.mimetype);
-        if (extname && mimetype) {
-            return cb(null, true);
-        } else {
-            cb("Error: Images Only!");
-        }
-    },
-});
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -106,7 +83,6 @@ exports.verifyToken = async (req, res) => {
 exports.register = async (req, res) => {
     try {
         const { name, email, phone, password, drivingLicenseNumber } = req.body;
-        const licenseImage = req.file;
 
         // Check if user already exists
         let user = await User.findOne({ email });
@@ -117,15 +93,34 @@ exports.register = async (req, res) => {
             });
         }
 
+        console.log("Request files:", req.files);
+        console.log("Request body:", req.body);
+
+        const drivingLicenseImage = req.files?.drivingLicense && req.files.drivingLicense[0]?.path;
+        console.log("Driving license image path:", drivingLicenseImage);
+
+        if (!drivingLicenseImage) {
+            return res.status(400).json({
+                success: false,
+                message: "drivingLicenseImage is required",
+            });
+        }
+
+        console.log("About to upload to cloudinary with path:", drivingLicenseImage);
+        const drivingLicense = await uploadOnCloudinary(drivingLicenseImage);
+        console.log("Cloudinary response:", drivingLicense);
+
         // Create new user with proper driving license structure
+        const uniqueQRCode = 'QR_' + Date.now() + '_' + Math.round(Math.random() * 1000000);
         user = new User({
             name,
             email,
             phone,
             password,
+            qrCode: uniqueQRCode,
             drivingLicense: {
                 number: drivingLicenseNumber,
-                image: licenseImage ? licenseImage.path : null,
+                image: drivingLicense?.url || "" ,
                 verified: false,
             },
         });
@@ -147,6 +142,7 @@ exports.register = async (req, res) => {
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                drivingLicense: user.drivingLicense,
             },
         });
     } catch (error) {
