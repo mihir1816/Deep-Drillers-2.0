@@ -1,17 +1,54 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LogIn } from 'lucide-react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 function Login() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Login logic will be implemented here
-    console.log('Login attempt:', formData);
+    setLoading(true);
+    setError('');
+    
+    try {
+      // Send login request to backend
+      const response = await axios.post(
+        'http://localhost:5000/api/auth/login',
+        formData
+      );
+      
+      console.log('Login successful:', response.data);
+      
+      // Store token and user data in localStorage
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      
+      // Show success message
+      toast.success('Login successful!');
+      
+      // Redirect to dashboard
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login error:', error);
+      
+      setError(
+        error.response?.data?.message || 
+        error.message || 
+        'Login failed. Please try again.'
+      );
+      
+      toast.error(error.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +58,13 @@ function Login() {
           <LogIn className="mx-auto h-12 w-12 text-green-600" />
           <h2 className="mt-6 text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
         </div>
+
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mt-4">
+            <p className="text-red-700">{error}</p>
+          </div>
+        )}
+        
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
             <div>
@@ -56,20 +100,23 @@ function Login() {
           <div>
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+              disabled={loading}
+              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
             >
-              Sign in
+              {loading ? (
+                <>
+                  <LogIn className="animate-spin -ml-1 mr-2 h-4 w-4" />
+                  Signing in...
+                </>
+              ) : (
+                "Sign in"
+              )}
             </button>
           </div>
         </form>
-
-        <div className="text-center">
-          <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-medium text-green-600 hover:text-green-500">
-              Register here
-            </Link>
-          </p>
+        
+        <div className="text-center mt-4">
+          <p>Don't have an account? <Link to="/register" className="text-green-600 hover:text-green-800">Register</Link></p>
         </div>
       </div>
     </div>
