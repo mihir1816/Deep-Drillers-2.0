@@ -4,6 +4,8 @@ const crypto = require("crypto");
 const generateQRCode = async (data) => {
     try {
         // Create a data URL for the QR code
+        console.log("Generating QR code for data:", data);
+        
         const qrDataUrl = await QRCode.toDataURL(data);
         return qrDataUrl;
     } catch (error) {

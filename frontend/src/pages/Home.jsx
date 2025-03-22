@@ -35,7 +35,7 @@ function Home() {
             </div>
             <div className="md:w-1/2">
               <img
-                src="https://images.unsplash.com/photo-1593941707882-a56bbc8e7565?auto=format&fit=crop&w=1200"
+                src="../public/1.jpeg"
                 alt="Electric Vehicle"
                 className="rounded-xl shadow-2xl object-cover w-full h-[400px]"
               />

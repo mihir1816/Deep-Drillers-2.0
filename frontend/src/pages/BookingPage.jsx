@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, use } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Calendar, Clock, CreditCard, MapPin, Battery, Info, Check } from "lucide-react"
 import QRCode from "qrcode.react"
@@ -18,23 +18,21 @@ function BookingPage() {
     pickupTime: new Date().toTimeString().slice(0, 5),
     dropoffDate: new Date().toISOString().split("T")[0],
     dropoffTime: "",
-    duration: "1",
     paymentMethod: "card",
   })
   const [showQR, setShowQR] = useState(false)
   const [bookingId, setBookingId] = useState(null)
+  const [qrCode, setQrCode] = useState("")
 
   // Fetch vehicle details
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       setLoading(true)
       try {
-        // In a real app, you would have an API endpoint to get vehicle details
-        const response = await fetch(`http://localhost:5000/api/vehicles/${vehicleId}`, {
+        const response = await fetch(`http://localhost:5000/api/vehicle/${vehicleId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         })
 
@@ -45,12 +43,12 @@ function BookingPage() {
         const data = await response.json()
         console.log("Received vehicle data:", data)
 
-        if (data.success) {
-          setVehicle(data.data)
+        if (data) {
+          setVehicle(data)
 
           // Fetch station details if stationId is available
-          if (data.data.stationId) {
-            const stationResponse = await fetch(`http://localhost:5000/api/locations/${data.data.stationId}`, {
+          if (data.station._id) {
+            const stationResponse = await fetch(`http://localhost:5000/api/locations/${data.station._id}`, {
               method: "GET",
               headers: {
                 Accept: "application/json",
@@ -61,8 +59,14 @@ function BookingPage() {
               const stationData = await stationResponse.json()
               if (stationData.success) {
                 setStation(stationData.data)
+              } else {
+                throw new Error(stationData.message || "Failed to fetch station details")
               }
+            } else {
+              throw new Error(`Failed to fetch station: ${stationResponse.status} ${stationResponse.statusText}`)
             }
+          } else {
+            throw new Error("Vehicle does not have an associated station")
           }
         } else {
           throw new Error(data.message || "Failed to fetch vehicle details")
@@ -70,22 +74,7 @@ function BookingPage() {
       } catch (err) {
         console.error("Error fetching vehicle details:", err)
         setError(err.message)
-
-        // Fallback to mock data for demo purposes
-        setVehicle({
-          _id: vehicleId,
-          name: "Tesla Model 3",
-          numberPlate: "EV-1234",
-          range: 400,
-          chargingStatus: { level: 85 },
-          pricePerHour: 50,
-          image: "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800",
-        })
-
-        setStation({
-          name: "Downtown Station",
-          address: "123 Main St, City",
-        })
+        toast.error(`Error: ${err.message}. Please try again later.`)
       } finally {
         setLoading(false)
       }
@@ -116,16 +105,10 @@ function BookingPage() {
     const hours = calculateDuration()
     let discount = 0
 
-    if (hours >= 24) {
-      discount = 0.2 // 20% discount
-    } else if (hours >= 12) {
-      discount = 0.1 // 10% discount
-    } else if (hours >= 6) {
-      discount = 0.05 // 5% discount
-    }
+    
 
     const basePrice = hours * (vehicle?.pricePerHour || 0)
-    const discountedPrice = basePrice * (1 - discount)
+    const discountedPrice = basePrice 
 
     return discountedPrice.toFixed(2)
   }
@@ -140,40 +123,48 @@ function BookingPage() {
       return
     }
 
+    if (!vehicle || !station) {
+      toast.error("Vehicle or station information is missing. Please try again.")
+      return
+    }
+
     try {
-      // In a real app, you would submit the booking to your backend
       const bookingData = {
+        userId: localStorage.getItem("userId"),
         vehicleId,
-        pickupDateTime: `${bookingDetails.pickupDate}T${bookingDetails.pickupTime}`,
-        dropoffDateTime: `${bookingDetails.dropoffDate}T${bookingDetails.dropoffTime}`,
+        stationId: station._id,
+        pickupDate: bookingDetails.pickupDate,
+        pickupTime: bookingDetails.pickupTime,
+        dropoffDate: bookingDetails.dropoffDate,
+        dropoffTime: bookingDetails.dropoffTime,
         paymentMethod: bookingDetails.paymentMethod,
-        totalPrice: calculatePrice(),
       }
 
       console.log("Submitting booking:", bookingData)
 
-      // Simulate API call
-      // const response = await fetch('http://localhost:5000/api/bookings', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //     'Authorization': `Bearer ${localStorage.getItem('token')}`
-      //   },
-      //   body: JSON.stringify(bookingData)
-      // });
+      const response = await fetch('http://localhost:5000/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bookingData)
+      });
 
-      // if (!response.ok) {
-      //   throw new Error('Failed to create booking');
-      // }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create booking');
+      }
 
-      // const data = await response.json();
-      // setBookingId(data.data._id);
-
-      // For demo, generate a random booking ID
-      setBookingId(`BK-${Math.floor(Math.random() * 10000)}`)
-
-      toast.success("Booking confirmed successfully!")
-      setShowQR(true)
+      const data = await response.json();
+      
+      if (data.success) {
+        setBookingId(data.data.booking._id);
+        setQrCode(data.data.qrCode);
+        toast.success("Booking confirmed successfully!");
+        setShowQR(true);
+      } else {
+        throw new Error(data.message || "Failed to create booking");
+      }
     } catch (err) {
       console.error("Error creating booking:", err)
       toast.error(err.message || "Failed to create booking")
@@ -191,25 +182,12 @@ function BookingPage() {
     )
   }
 
-  if (error && !vehicle) {
+  if (error || !vehicle || !station) {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center text-red-600">
-          <h2 className="text-2xl font-bold">Error loading vehicle</h2>
-          <p className="mt-2">{error}</p>
-          <button onClick={() => navigate("/locations")} className="text-blue-600 hover:underline mt-4 inline-block">
-            Back to Locations
-          </button>
-        </div>
-      </div>
-    )
-  }
-
-  if (!vehicle) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center text-red-600">
-          <h2 className="text-2xl font-bold">Vehicle not found</h2>
+          <h2 className="text-2xl font-bold">Error loading data</h2>
+          <p className="mt-2">{error || "Failed to load vehicle or station information"}</p>
           <button onClick={() => navigate("/locations")} className="text-blue-600 hover:underline mt-4 inline-block">
             Back to Locations
           </button>
@@ -230,12 +208,13 @@ function BookingPage() {
               <div className="bg-white rounded-xl shadow-md overflow-hidden">
                 <div className="relative h-48">
                   <img
-                    src={
-                      vehicle.image ||
-                      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800"
-                    }
+                    src={vehicle.image || "/default-vehicle.jpg"}
                     alt={vehicle.name}
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "/default-vehicle.jpg";
+                      e.target.onerror = null;
+                    }}
                   />
                   <div className="absolute top-4 right-4 bg-white px-3 py-1 rounded-full text-sm font-semibold">
                     {vehicle.numberPlate}
@@ -262,7 +241,7 @@ function BookingPage() {
 
                     <div className="flex items-center text-gray-600">
                       <MapPin className="h-5 w-5 mr-3" />
-                      <span>{station?.name || "Loading station..."}</span>
+                      <span>{station.name}</span>
                     </div>
 
                     <div className="flex items-center text-gray-600">
@@ -404,11 +383,10 @@ function BookingPage() {
             <h2 className="text-2xl font-semibold text-gray-800">Booking Confirmed!</h2>
             <p className="text-gray-600">Booking ID: {bookingId}</p>
             <div className="bg-gray-50 p-4 rounded-lg inline-block">
-              <QRCode value={`ev-rental-booking-${vehicleId}-${bookingId}`} size={200} level="H" />
+              <QRCode value={`pickup-${bookingId}`} size={200} level="H" />
             </div>
             <p className="text-gray-600">
-              Please show this QR code at {station?.name || "the station"} within the next 15 minutes to collect your
-              vehicle.
+              Please show this QR code at {station.name} to collect your vehicle.
             </p>
             <button
               onClick={() => navigate("/dashboard")}
@@ -424,4 +402,3 @@ function BookingPage() {
 }
 
 export default BookingPage
-

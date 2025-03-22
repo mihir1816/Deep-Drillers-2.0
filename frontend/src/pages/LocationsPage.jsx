@@ -136,7 +136,7 @@ function LocationsPage() {
         <div className="relative">
           <img
             src={
-              station.image || "https://images.unsplash.com/photo-1593941707882-a56bbc8e7565?auto=format&fit=crop&w=800"
+              station.image || `../public/${station.name}.jpeg` 
             }
             alt={station.name}
             className={`w-full h-48 object-cover ${!hasVehicles && "grayscale"}`}

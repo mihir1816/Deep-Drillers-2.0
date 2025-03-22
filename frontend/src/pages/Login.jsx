@@ -30,11 +30,17 @@ function Login() {
       localStorage.setItem("token", response.data.token)
       localStorage.setItem("user", JSON.stringify(response.data.user))
 
+      const userId = response.data.user._id;
+      localStorage.setItem("userId", userId);
+
+      // Notify other components about auth state change
+      window.dispatchEvent(new Event("authChange"))
+
       // Show success message
       toast.success("Login successful!")
 
       // Redirect to dashboard
-      navigate("/dashboard")
+      navigate("/")
     } catch (error) {
       console.error("Login error:", error)
 
@@ -160,4 +166,3 @@ function Login() {
 }
 
 export default Login
-

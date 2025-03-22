@@ -1,30 +1,40 @@
 const express = require("express");
 const router = express.Router();
-const { isAuthenticated } = require("../middleware/auth");
+const { isAuthenticated, authorizeRoles } = require("../middleware/auth");
 const {
     createBooking,
     getUserBookings,
     getBookingDetails,
     cancelBooking,
     verifyQRCode,
+    extendBooking,
+    addPickupDetails,
+    addReturnDetails,
+    getAllBookings,
+    updateBookingStatus,
+    getBookingStats
 } = require("../controllers/booking");
 
 // All routes are protected and require authentication
-router.use(isAuthenticated);
+// router.use(isAuthenticated);
 
-// Create a new booking
+// User routes
 router.post("/", createBooking);
-
-// Get user's bookings
 router.get("/my-bookings", getUserBookings);
-
-// Get booking details by ID
 router.get("/:id", getBookingDetails);
-
-// Cancel booking
 router.post("/:id/cancel", cancelBooking);
+router.post("/:id/extend", extendBooking);
 
-// Verify QR code for pickup/return
+// QR verification
 router.post("/verify-qr", verifyQRCode);
+
+// // Staff and admin routes
+// router.post("/:id/pickup-details", authorizeRoles(["STAFF", "ADMIN"]), addPickupDetails);
+// router.post("/:id/return-details", authorizeRoles(["STAFF", "ADMIN"]), addReturnDetails);
+
+// // Admin-only routes
+// router.get("/", authorizeRoles(["ADMIN"]), getAllBookings);
+// router.patch("/:id/status", authorizeRoles(["ADMIN"]), updateBookingStatus);
+// router.get("/stats/dashboard", authorizeRoles(["ADMIN"]), getBookingStats);
 
 module.exports = router;

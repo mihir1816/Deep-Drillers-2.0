@@ -31,7 +31,7 @@ const bookingSchema = new mongoose.Schema(
         },
         paymentMethod: {
             type: String,
-            enum: ["wallet", "card"],
+            enum: ["wallet", "card", "paypal"],
             required: true,
         },
         status: {

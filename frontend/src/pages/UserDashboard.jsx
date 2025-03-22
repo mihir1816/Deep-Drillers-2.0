@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Wallet, Gift, Car, User, MapPin } from "lucide-react"
 import { Link } from "react-router-dom"
 import ChatbotButton from "../components/ChatbotButton"
@@ -9,23 +9,20 @@ import ChatbotWindow from "../components/ChatbotWindow"
 function UserDashboard() {
   const [activeTab, setActiveTab] = useState("vehicles")
   const [showChat, setShowChat] = useState(false)
-
-  const tabs = [
-    { id: "vehicles", name: "Find Vehicles", icon: Car },
-    { id: "account", name: "Account Info", icon: User },
-    { id: "rewards", name: "Rewards & Offers", icon: Gift },
-    { id: "wallet", name: "Wallet", icon: Wallet },
-  ]
-
-  // Mock user data
-  const userData = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    memberSince: "March 2023",
-    rewardPoints: 350,
+  const [userData, setUserData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    memberSince: "",
+    rewardPoints: 0,
     activeBookings: [],
-    bookingHistory: [
+    bookingHistory: [],
+  })
+
+  // Get user data from localStorage
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}")
+    const bookingHistoryData = user.bookingHistory || [
       {
         id: "B001",
         vehicle: "Tesla Model 3",
@@ -33,8 +30,50 @@ function UserDashboard() {
         duration: "3 hours",
         amount: "$150",
       },
-    ],
-  }
+    ]
+    
+    setUserData({
+      name: user.name || "Guest User",
+      email: user.email || "",
+      phone: user.phone || "",
+      memberSince: user.memberSince || "New Member",
+      rewardPoints: user.rewardPoints || 0,
+      activeBookings: user.activeBookings || [],
+      bookingHistory: bookingHistoryData,
+    })
+  }, [])
+
+  // Handle authentication changes
+  useEffect(() => {
+    // Function to handle auth state changes
+    const handleAuthChange = () => {
+      const user = JSON.parse(localStorage.getItem("user") || "{}")
+      
+      setUserData(prevData => ({
+        ...prevData,
+        name: user.name || "Guest User",
+        email: user.email || "",
+        phone: user.phone || "",
+        memberSince: user.memberSince || "New Member",
+        rewardPoints: user.rewardPoints || 0,
+      }))
+    }
+
+    // Listen for auth changes
+    window.addEventListener("authChange", handleAuthChange)
+    
+    // Clean up event listener
+    return () => {
+      window.removeEventListener("authChange", handleAuthChange)
+    }
+  }, [])
+
+  const tabs = [
+    { id: "vehicles", name: "Find Vehicles", icon: Car },
+    { id: "account", name: "Account Info", icon: User },
+    { id: "rewards", name: "Rewards & Offers", icon: Gift },
+    { id: "wallet", name: "Wallet", icon: Wallet },
+  ]
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -135,7 +174,7 @@ function UserDashboard() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Phone</p>
-                    <p className="text-lg">{userData.phone}</p>
+                    <p className="text-lg">{userData.phone || "Not provided"}</p>
                   </div>
                   <div>
                     <p className="text-sm text-gray-500">Member Since</p>
@@ -185,7 +224,7 @@ function UserDashboard() {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 flex items-center justify-between">
                 <div>
                   <p className="text-blue-700 font-medium">Your Balance</p>
-                  <p className="text-3xl font-bold text-blue-600">$125.00</p>
+                  <p className="text-3xl font-bold text-blue-600">${userData.walletBalance || "0.00"}</p>
                 </div>
                 <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
                   Add Money
@@ -208,16 +247,23 @@ function UserDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    <tr>
-                      <td className="px-4 py-2 whitespace-nowrap">2023-03-15</td>
-                      <td className="px-4 py-2 whitespace-nowrap">Payment for Tesla Model 3</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-red-600">-$150.00</td>
-                    </tr>
-                    <tr>
-                      <td className="px-4 py-2 whitespace-nowrap">2023-03-10</td>
-                      <td className="px-4 py-2 whitespace-nowrap">Added money to wallet</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-green-600">+$200.00</td>
-                    </tr>
+                    {userData.transactions && userData.transactions.length > 0 ? (
+                      userData.transactions.map((transaction, index) => (
+                        <tr key={index}>
+                          <td className="px-4 py-2 whitespace-nowrap">{transaction.date}</td>
+                          <td className="px-4 py-2 whitespace-nowrap">{transaction.description}</td>
+                          <td className={`px-4 py-2 whitespace-nowrap ${transaction.amount.startsWith('-') ? 'text-red-600' : 'text-green-600'}`}>
+                            {transaction.amount}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td className="px-4 py-2 whitespace-nowrap">2023-03-15</td>
+                        <td className="px-4 py-2 whitespace-nowrap">Payment for Tesla Model 3</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-red-600">-$150.00</td>
+                      </tr>
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -234,4 +280,3 @@ function UserDashboard() {
 }
 
 export default UserDashboard
-

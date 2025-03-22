@@ -1,14 +1,26 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Link, useLocation } from "react-router-dom"
 import { Car, UserCircle, MapPin, Menu, X, LogOut } from "lucide-react"
 
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
   const [user, setUser] = useState(null)
   const location = useLocation()
+  const dropdownRef = useRef(null)
+
+  // Function to check user authentication status
+  const checkUserAuth = () => {
+    const userData = localStorage.getItem("user")
+    if (userData) {
+      setUser(JSON.parse(userData))
+    } else {
+      setUser(null)
+    }
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,23 +28,57 @@ function Navbar() {
     }
 
     // Check if user is logged in
-    const userData = localStorage.getItem("user")
-    if (userData) {
-      setUser(JSON.parse(userData))
+    checkUserAuth()
+
+    // Add event listener for scroll
+    window.addEventListener("scroll", handleScroll)
+    
+    // Add storage event listener to detect changes to localStorage
+    window.addEventListener("storage", checkUserAuth)
+    
+    // Create a custom event listener for auth changes
+    window.addEventListener("authChange", checkUserAuth)
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll)
+      window.removeEventListener("storage", checkUserAuth)
+      window.removeEventListener("authChange", checkUserAuth)
+    }
+  }, [])
+
+  // Re-check auth status on location/route changes
+  useEffect(() => {
+    checkUserAuth()
+  }, [location])
+
+  useEffect(() => {
+    // Close dropdown when clicking outside
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false)
+      }
     }
 
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
   const handleLogout = () => {
     localStorage.removeItem("token")
     localStorage.removeItem("user")
+    setUser(null)
+    setIsDropdownOpen(false)
+    // Dispatch custom event to notify other components
+    window.dispatchEvent(new Event("authChange"))
     window.location.href = "/"
   }
 
   const isActive = (path) => {
     return location.pathname === path
+  }
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen)
   }
 
   return (
@@ -68,26 +114,35 @@ function Navbar() {
                 >
                   Dashboard
                 </Link>
-                <div className="relative group">
-                  <button className="flex items-center space-x-1 text-gray-700 hover:text-green-600">
+                <div className="relative" ref={dropdownRef}>
+                  <button 
+                    className="flex items-center space-x-1 text-gray-700 hover:text-green-600"
+                    onClick={toggleDropdown}
+                  >
                     <UserCircle className="h-6 w-6" />
                     <span>{user.name?.split(" ")[0] || "User"}</span>
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10 hidden group-hover:block">
-                    <Link
-                      to="/dashboard"
-                      className="block px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
-                    >
-                      My Dashboard
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
-                    >
-                      <LogOut className="h-4 w-4 mr-2" />
-                      Logout
-                    </button>
-                  </div>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-10">
+                      <Link
+                        to="/dashboard"
+                        className="block px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                        onClick={() => setIsDropdownOpen(false)}
+                      >
+                        My Dashboard
+                      </Link>
+                      <button
+                        onClick={() => {
+                          handleLogout()
+                          setIsDropdownOpen(false)
+                        }}
+                        className="flex items-center w-full text-left px-4 py-2 text-gray-700 hover:bg-green-50 hover:text-green-600"
+                      >
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
+                  )}
                 </div>
               </>
             ) : (
@@ -164,4 +219,3 @@ function Navbar() {
 }
 
 export default Navbar
-

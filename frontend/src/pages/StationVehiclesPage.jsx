@@ -155,7 +155,7 @@ function StationVehiclesPage() {
             <img
               src={
                 station.image ||
-                "https://images.unsplash.com/photo-1593941707882-a56bbc8e7565?auto=format&fit=crop&w=800"
+                "../public/Nirma.jpeg"
               }
               alt={station.name}
               className="h-full w-full object-cover"
@@ -258,7 +258,7 @@ function StationVehiclesPage() {
                   <img
                     src={
                       vehicle.image ||
-                      "https://images.unsplash.com/photo-1560958089-b8a1929cea89?auto=format&fit=crop&w=800"
+                      `../public/${vehicle.numberPlate}.jpeg`
                     }
                     alt={vehicle.name}
                     className="w-full h-48 object-cover"

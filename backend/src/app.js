@@ -29,13 +29,12 @@ app.use(
 const authRoutes = require("./routes/auth");
 // Uncomment these as you implement them
 // const userRoutes = require('./routes/users');
-// const vehicleRoutes = require('./routes/vehicles');
+const vehicleRoutes = require('./routes/vehicle');
 const locationRoutes = require("./routes/location");
 // const contractRoutes = require('./routes/contracts');
 const kycRoutes = require("./routes/kyc");
 const otpRoutes = require("./routes/otp");
 const bookingRoutes = require("./routes/booking");
-const adminRoutes = require("./routes/admin");
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -47,7 +46,7 @@ app.use("/api/locations", locationRoutes);
 app.use("/api/kyc", kycRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/bookings", bookingRoutes);
-app.use("/api/admin", adminRoutes);
+app.use('/api', vehicleRoutes);
 
 // Log all incoming requests
 app.use((req, res, next) => {
