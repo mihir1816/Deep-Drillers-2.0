@@ -82,7 +82,7 @@
 }
 
 .status-badge.open {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
@@ -126,12 +126,12 @@
 }
 
 .port-type.fast {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
 }
 
 .port-type.slow {
-  background-color: #FF9800;
+  background-color: #ff9800;
   color: white;
 }
 
@@ -207,12 +207,12 @@
 }
 
 .status.available {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
 .status.in-use {
-  background-color: #2196F3;
+  background-color: #2196f3;
   color: white;
 }
 
@@ -282,7 +282,7 @@
 }
 
 .stat-box.warning .amount {
-  color: #FFA500;
+  color: #ffa500;
 }
 
 .amount {
@@ -606,22 +606,22 @@
   .sidebar {
     width: 70px;
   }
-  
+
   .logo h2 {
     display: none;
   }
-  
+
   .sidebar-menu li a span,
   .logout-btn span,
   .user-info {
     display: none;
   }
-  
+
   .sidebar-menu li a {
     justify-content: center;
     padding: 0.75rem;
   }
-  
+
   .logout-btn {
     justify-content: center;
   }
@@ -632,20 +632,20 @@
   .main-content {
     padding: 1rem;
   }
-  
+
   .dashboard-row {
     grid-template-columns: 1fr;
   }
-  
+
   .ports-grid,
   .vehicles-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .charts-container {
     grid-template-columns: 1fr;
   }
-  
+
   .revenue-stats {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -657,4 +657,5 @@
   border-radius: 12px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 1.5rem;
-} 
+}
+

@@ -1,5 +1,4 @@
-import React from 'react';
-import { FaUser, FaCar, FaClock, FaMoneyBill } from 'react-icons/fa';
+import { FaUser, FaCar, FaClock, FaMoneyBill } from "react-icons/fa"
 
 const BookingSummary = () => {
   const bookings = [
@@ -13,7 +12,7 @@ const BookingSummary = () => {
       endTime: "2024-03-15T14:00:00",
       duration: "5 hours",
       paymentStatus: "Paid",
-      amount: 75.00
+      amount: 75.0,
     },
     {
       id: "BK-002",
@@ -25,23 +24,23 @@ const BookingSummary = () => {
       endTime: "2024-03-15T12:30:00",
       duration: "2 hours",
       paymentStatus: "Pending",
-      amount: 30.00
-    }
-  ];
+      amount: 30.0,
+    },
+  ]
 
   const getPaymentStatusColor = (status) => {
-    return status === "Paid" ? "#4CAF50" : "#FFA500";
-  };
+    return status === "Paid" ? "#4CAF50" : "#FFA500"
+  }
 
   return (
     <div className="booking-summary card">
       <h2>Recent Bookings</h2>
       <div className="bookings-list">
-        {bookings.map(booking => (
+        {bookings.map((booking) => (
           <div key={booking.id} className="booking-card">
             <div className="booking-header">
               <h3>{booking.id}</h3>
-              <span 
+              <span
                 className="payment-status"
                 style={{ backgroundColor: getPaymentStatusColor(booking.paymentStatus) }}
               >
@@ -86,7 +85,8 @@ const BookingSummary = () => {
         ))}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BookingSummary; 
+export default BookingSummary
+

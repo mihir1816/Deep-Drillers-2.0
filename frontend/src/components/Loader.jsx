@@ -1,5 +1,4 @@
-import React from 'react';
-import './Loader.css'; // You'll need to create this CSS file
+import "./Loader.css" // You'll need to create this CSS file
 
 const Loader = ({ message = "Processing your registration..." }) => {
   return (
@@ -9,7 +8,8 @@ const Loader = ({ message = "Processing your registration..." }) => {
         <p>{message}</p>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Loader; 
+export default Loader
+

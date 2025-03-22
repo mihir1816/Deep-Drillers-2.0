@@ -1,5 +1,5 @@
-import React from 'react';
-import { FaBell, FaUser, FaSearch, FaMoon, FaSun } from 'react-icons/fa';
+"use client"
+import { FaBell, FaUser, FaSearch, FaMoon, FaSun } from "react-icons/fa"
 
 const Header = ({ toggleTheme, isDarkMode }) => {
   return (
@@ -8,17 +8,17 @@ const Header = ({ toggleTheme, isDarkMode }) => {
         <FaSearch />
         <input type="text" placeholder="Search..." />
       </div>
-      
+
       <div className="header-actions">
         <button className="theme-toggle" onClick={toggleTheme}>
           {isDarkMode ? <FaSun /> : <FaMoon />}
         </button>
-        
+
         <div className="notification-icon">
           <FaBell />
           <span className="notification-badge">3</span>
         </div>
-        
+
         <div className="user-profile">
           <div className="user-avatar">
             <FaUser />
@@ -30,7 +30,8 @@ const Header = ({ toggleTheme, isDarkMode }) => {
         </div>
       </div>
     </header>
-  );
-};
+  )
+}
 
-export default Header; 
+export default Header
+

@@ -1,8 +1,13 @@
-import React from 'react';
-import { 
-  FaHome, FaChargingStation, FaCar, FaCalendarAlt, 
-  FaChartLine, FaTools, FaCog, FaSignOutAlt 
-} from 'react-icons/fa';
+import {
+  FaHome,
+  FaChargingStation,
+  FaCar,
+  FaCalendarAlt,
+  FaChartLine,
+  FaTools,
+  FaCog,
+  FaSignOutAlt,
+} from "react-icons/fa"
 
 const Sidebar = () => {
   const menuItems = [
@@ -12,19 +17,19 @@ const Sidebar = () => {
     { icon: <FaCalendarAlt />, label: "Bookings" },
     { icon: <FaChartLine />, label: "Analytics" },
     { icon: <FaTools />, label: "Maintenance" },
-    { icon: <FaCog />, label: "Settings" }
-  ];
+    { icon: <FaCog />, label: "Settings" },
+  ]
 
   return (
     <div className="sidebar">
       <div className="logo">
         <h2>EV Admin</h2>
       </div>
-      
+
       <nav className="sidebar-menu">
         <ul>
           {menuItems.map((item, index) => (
-            <li key={index} className={item.active ? 'active' : ''}>
+            <li key={index} className={item.active ? "active" : ""}>
               <a href="#">
                 {item.icon}
                 <span>{item.label}</span>
@@ -33,7 +38,7 @@ const Sidebar = () => {
           ))}
         </ul>
       </nav>
-      
+
       <div className="sidebar-footer">
         <button className="logout-btn">
           <FaSignOutAlt />
@@ -41,7 +46,8 @@ const Sidebar = () => {
         </button>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Sidebar; 
+export default Sidebar
+

@@ -1,37 +1,33 @@
-import React from 'react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-  PieChart, Pie, Cell, ResponsiveContainer 
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
 
 const RevenueSummary = () => {
   const revenueData = {
-    today: 450.00,
-    weekly: 2850.00,
-    monthly: 12500.00,
-    pendingPayments: 750.00,
+    today: 450.0,
+    weekly: 2850.0,
+    monthly: 12500.0,
+    pendingPayments: 750.0,
     paymentModes: [
-      { name: 'Credit Card', value: 65 },
-      { name: 'Debit Card', value: 20 },
-      { name: 'Digital Wallet', value: 15 }
+      { name: "Credit Card", value: 65 },
+      { name: "Debit Card", value: 20 },
+      { name: "Digital Wallet", value: 15 },
     ],
     weeklyTrend: [
-      { day: 'Mon', amount: 380 },
-      { day: 'Tue', amount: 420 },
-      { day: 'Wed', amount: 450 },
-      { day: 'Thu', amount: 350 },
-      { day: 'Fri', amount: 480 },
-      { day: 'Sat', amount: 520 },
-      { day: 'Sun', amount: 250 }
-    ]
-  };
+      { day: "Mon", amount: 380 },
+      { day: "Tue", amount: 420 },
+      { day: "Wed", amount: 450 },
+      { day: "Thu", amount: 350 },
+      { day: "Fri", amount: 480 },
+      { day: "Sat", amount: 520 },
+      { day: "Sun", amount: 250 },
+    ],
+  }
 
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28'];
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28"]
 
   return (
     <div className="revenue-summary card">
       <h2>Revenue Summary</h2>
-      
+
       <div className="revenue-stats">
         <div className="stat-box">
           <h3>Today's Revenue</h3>
@@ -88,7 +84,8 @@ const RevenueSummary = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RevenueSummary; 
+export default RevenueSummary
+
