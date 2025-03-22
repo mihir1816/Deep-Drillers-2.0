@@ -1,0 +1,85 @@
+[
+    {
+      "numberPlate": "AB123CD",
+      "status": "AVAILABLE",
+      "station": "605c72a1e3c2c8b8d44b55a1",
+      "chargingStatus": {
+        "level": 85
+      },
+      "damages": [
+        {
+          "description": "Scratch on the left door",
+          "images": [
+            "https://example.com/images/scratch1.jpg",
+            "https://example.com/images/scratch2.jpg"
+          ],
+          "reportedAt": "2025-03-20T10:15:00.000Z"
+        }
+      ],
+      "pricePerHour": 15
+    },
+    {
+      "numberPlate": "EF456GH",
+      "status": "UNAVAILABLE",
+      "station": "605c72a1e3c2c8b8d44b55a2",
+      "chargingStatus": {
+        "level": 45
+      },
+      "damages": [
+        {
+          "description": "Flat tire",
+          "images": [
+            "https://example.com/images/tire1.jpg"
+          ],
+          "reportedAt": "2025-03-18T08:30:00.000Z"
+        },
+        {
+          "description": "Crack in windshield",
+          "images": [
+            "https://example.com/images/windshield.jpg"
+          ],
+          "reportedAt": "2025-03-19T12:00:00.000Z"
+        }
+      ],
+      "pricePerHour": 12
+    },
+    {
+      "numberPlate": "IJ789KL",
+      "status": "AVAILABLE",
+      "station": "605c72a1e3c2c8b8d44b55a3",
+      "chargingStatus": {
+        "level": 100
+      },
+      "damages": [],
+      "pricePerHour": 18
+    },
+    {
+      "numberPlate": "MN012OP",
+      "status": "AVAILABLE",
+      "station": "605c72a1e3c2c8b8d44b55a4",
+      "chargingStatus": {
+        "level": 60
+      },
+      "damages": [
+        {
+          "description": "Small dent on rear bumper",
+          "images": [
+            "https://example.com/images/dent.jpg"
+          ],
+          "reportedAt": "2025-03-21T14:45:00.000Z"
+        }
+      ],
+      "pricePerHour": 14
+    },
+    {
+      "numberPlate": "QR345ST",
+      "status": "UNAVAILABLE",
+      "station": "605c72a1e3c2c8b8d44b55a5",
+      "chargingStatus": {
+        "level": 20
+      },
+      "damages": [],
+      "pricePerHour": 10
+    }
+  ]
+  
