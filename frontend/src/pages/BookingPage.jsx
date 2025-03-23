@@ -383,7 +383,7 @@ function BookingPage() {
             <h2 className="text-2xl font-semibold text-gray-800">Booking Confirmed!</h2>
             <p className="text-gray-600">Booking ID: {bookingId}</p>
             <div className="bg-gray-50 p-4 rounded-lg inline-block">
-              <QRCode value={`pickup-${bookingId}`} size={200} level="H" />
+              <QRCode value={`${bookingId}`} size={200} level="H" />
             </div>
             <p className="text-gray-600">
               Please show this QR code at {station.name} to collect your vehicle.

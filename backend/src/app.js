@@ -5,6 +5,8 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 const connectDB = require("./config/database.js");
 
+
+
 // Load environment variables
 dotenv.config();
 
@@ -35,6 +37,11 @@ const locationRoutes = require("./routes/location");
 const kycRoutes = require("./routes/kyc");
 const otpRoutes = require("./routes/otp");
 const bookingRoutes = require("./routes/booking");
+const pickupRoutes = require("./routes/pickupRoutes");
+const userBookingRoutes = require("./routes/userBooking");
+
+app.use('/api', pickupRoutes);
+app.use('/api', userBookingRoutes);
 
 // Routes
 app.use("/api/auth", authRoutes);
