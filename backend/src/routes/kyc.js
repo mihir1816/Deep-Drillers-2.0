@@ -1,30 +1,16 @@
-const express = require("express");
+// routes/kycRoutes.js
+const express = require('express');
 const router = express.Router();
-const {
-    submitKYC,
-    verifyKYC,
-    generateOTP,
-    verifyOTP,
-    uploadDocuments,
-    getKYCStatus,
-} = require("../controllers/kycController");
+const kyc = require('../controllers/kyc');
+const authMiddleware = require('../middleware/auth'); // Assuming you have an auth middleware
 
-// KYC Submission
-router.post("/submit", submitKYC);
+// Apply authentication middleware to all KYC routes
+router.use(authMiddleware);
 
-// KYC Verification
-router.post("/verify", verifyKYC);
+// Route for generating OTP
+router.post('/generate-otp', kyc.generateOtp);
 
-// Generate OTP for Aadhaar
-router.post("/generate-otp", generateOTP);
-
-// Verify OTP
-router.post("/verify-otp", verifyOTP);
-
-// Upload Documents
-router.post("/upload-documents", uploadDocuments);
-
-// Get KYC Status
-router.get("/status", getKYCStatus);
+// Route for verifying OTP
+router.post('/verify-otp', kyc.verifyOtp);
 
 module.exports = router;
