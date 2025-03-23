@@ -54,6 +54,7 @@ app.use("/api/kyc", kycRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use('/api', vehicleRoutes);
+app.use('/api/kyc', kycRoutes);
 
 // Log all incoming requests
 app.use((req, res, next) => {

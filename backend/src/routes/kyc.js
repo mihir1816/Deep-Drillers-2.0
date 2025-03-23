@@ -1,17 +1,17 @@
-// routes/kyc.js
+// routes/kycRoutes.js
 const express = require('express');
 const router = express.Router();
-const kyc = require('../controllers/kyc'); 
+const kycController = require('../controllers/kycController');
+const authMiddleware = require('../middleware/authMiddleware');
 
-// Skip the auth middleware temporarily to test if that's the issue
-router.post('/generate-otp', (req, res, next) => {
-    console.log('Generate OTP route hit');
-    kyc.generateOtp(req, res, next);
-});
+// Auth health check route (no auth middleware)
+router.get('/auth-status', kycController.checkAuthStatus);
 
-router.post('/verify-otp', (req, res, next) => {
-    console.log('Verify OTP route hit');
-    kyc.verifyOtp(req, res, next);
-});
+// Apply authentication middleware to protected routes
+router.use(authMiddleware);
+
+// KYC routes
+router.post('/generate-otp', kycController.generateOTP);
+router.post('/verify-otp', kycController.verifyOTP);
 
 module.exports = router;
