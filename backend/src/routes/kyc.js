@@ -1,13 +1,30 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { authorize } = require('../middleware/auth.js');
-const { submitKYC, verifyKYC } = require('../controllers/kyc.js');
+const {
+    submitKYC,
+    verifyKYC,
+    generateOTP,
+    verifyOTP,
+    uploadDocuments,
+    getKYCStatus,
+} = require("../controllers/kycController");
 
-router.post('/submit', submitKYC);
-router.post('/verify' , verifyKYC);
+// KYC Submission
+router.post("/submit", submitKYC);
 
-// authorize('ADMIN') is not avialable 
-// protect is not avialable
+// KYC Verification
+router.post("/verify", verifyKYC);
 
-module.exports = router; 
+// Generate OTP for Aadhaar
+router.post("/generate-otp", generateOTP);
 
+// Verify OTP
+router.post("/verify-otp", verifyOTP);
+
+// Upload Documents
+router.post("/upload-documents", uploadDocuments);
+
+// Get KYC Status
+router.get("/status", getKYCStatus);
+
+module.exports = router;
