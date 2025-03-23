@@ -77,7 +77,7 @@ exports.generateOTP = async (req, res) => {
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `${token}`,
                     'x-api-key': API_KEY,
                     'x-api-version': API_VERSION,
                     'Content-Type': 'application/json'
@@ -154,7 +154,7 @@ exports.verifyOTP = async (req, res) => {
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `${token}`,
                     'x-api-key': API_KEY,
                     'x-api-version': API_VERSION,
                     'Content-Type': 'application/json'
