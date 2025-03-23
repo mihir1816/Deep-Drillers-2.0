@@ -1,15 +1,15 @@
 // controllers/kycController.js
 const axios = require('axios');
 
-// Hardcoded credentials for Sandbox API
+// Hardcoded credentials for Sandbox API (ensure these are for the correct environment)
 const API_KEY = 'key_live_hoI6ZA6xd4IJPXbsZthhnGoxECCMlym5';
 const API_SECRET = 'secret_live_BL5H2kxZLKSa9yJ0vd9Np7u8aEMgaU4A';
 const API_VERSION = '2.0';
 const SANDBOX_API_URL = 'https://api.sandbox.co.in';
 
-// Token management
-let authToken = null;
-let tokenExpiryTime = null;
+// Remove token caching variables if you won't be reusing them
+// let authToken = null;
+// let tokenExpiryTime = null;
 
 // Store reference IDs temporarily (in production, you should store these in a database)
 const referenceIdMap = new Map();
@@ -29,16 +29,13 @@ const refreshAuthToken = async () => {
             }
         );
 
+        // Optional: Log the entire response for debugging
+        console.log('Auth Response:', response.data);
+
         if (response.data && response.data.data && response.data.data.access_token) {
-            authToken = response.data.data.access_token;
-            
-            // Calculate token expiry time (convert from seconds to milliseconds)
-            // Subtract 5 minutes (300000 ms) to refresh before expiry
-            const expiresIn = response.data.data.expires_in * 1000 - 300000;
-            tokenExpiryTime = Date.now() + expiresIn;
-            
-            console.log('Authentication token refreshed successfully');
-            return authToken;
+            const newToken = response.data.data.access_token;
+            console.log('New authentication token obtained');
+            return newToken;
         } else {
             throw new Error('Failed to obtain auth token from response');
         }
@@ -49,12 +46,9 @@ const refreshAuthToken = async () => {
 };
 
 // Function to get a valid authentication token
+// Now, it always refreshes the token every time it's called.
 const getAuthToken = async () => {
-    // If token doesn't exist or is about to expire, refresh it
-    if (!authToken || !tokenExpiryTime || Date.now() >= tokenExpiryTime) {
-        return await refreshAuthToken();
-    }
-    return authToken;
+    return await refreshAuthToken();
 };
 
 exports.generateOTP = async (req, res) => {
@@ -69,10 +63,10 @@ exports.generateOTP = async (req, res) => {
             });
         }
 
-        // Get a valid authentication token
+        // Get a new authentication token every time
         const token = await getAuthToken();
 
-        // Prepare request to Sandbox API
+        // Prepare request to Sandbox API with the "Bearer" prefix added
         const response = await axios.post(
             `${SANDBOX_API_URL}/api/v2/kyc/aadhaar/okyc/otp`, 
             {
@@ -83,7 +77,7 @@ exports.generateOTP = async (req, res) => {
             },
             {
                 headers: {
-                    'Authorization': token,
+                    'Authorization': `Bearer ${token}`,
                     'x-api-key': API_KEY,
                     'x-api-version': API_VERSION,
                     'Content-Type': 'application/json'
@@ -92,10 +86,8 @@ exports.generateOTP = async (req, res) => {
         );
 
         // Store reference ID against user ID (in this case, we'll use a Map, but in production use a database)
-        // Extract user ID from JWT token (in a real app)
         const userId = req.userId || 'default-user';
         
-        // Save the reference ID for later verification
         if (response.data && response.data.data && response.data.data.reference_id) {
             referenceIdMap.set(userId, response.data.data.reference_id.toString());
         } else {
@@ -112,20 +104,11 @@ exports.generateOTP = async (req, res) => {
         
         // Handle authentication errors specifically
         if (error.response?.status === 401 || error.response?.data?.message?.includes('token')) {
-            try {
-                await refreshAuthToken();
-                return res.status(503).json({
-                    success: false,
-                    message: 'Authentication refreshed, please try again',
-                    error: 'temporary_auth_error'
-                });
-            } catch (authError) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Failed to authenticate with Sandbox API',
-                    error: authError.message
-                });
-            }
+            return res.status(503).json({
+                success: false,
+                message: 'Authentication error, please try again',
+                error: 'temporary_auth_error'
+            });
         }
         
         return res.status(error.response?.status || 500).json({
@@ -148,7 +131,6 @@ exports.verifyOTP = async (req, res) => {
             });
         }
 
-        // Get user ID and retrieve reference ID
         const userId = req.userId || 'default-user';
         const referenceId = referenceIdMap.get(userId);
         
@@ -159,10 +141,10 @@ exports.verifyOTP = async (req, res) => {
             });
         }
 
-        // Get a valid authentication token
+        // Get a new authentication token every time
         const token = await getAuthToken();
 
-        // Prepare request to Sandbox API
+        // Prepare request to Sandbox API with the "Bearer" prefix added
         const response = await axios.post(
             `${SANDBOX_API_URL}/api/v2/kyc/aadhaar/okyc/verify`, 
             {
@@ -172,7 +154,7 @@ exports.verifyOTP = async (req, res) => {
             },
             {
                 headers: {
-                    'Authorization': token,
+                    'Authorization': `Bearer ${token}`,
                     'x-api-key': API_KEY,
                     'x-api-version': API_VERSION,
                     'Content-Type': 'application/json'
@@ -180,12 +162,8 @@ exports.verifyOTP = async (req, res) => {
             }
         );
 
-        // Check the verification status
         if (response.data && response.data.data && response.data.data.status === 'valid') {
-            // Clear the reference ID after successful verification
             referenceIdMap.delete(userId);
-            
-            // Extract profile details if available
             const profileData = response.data.data.profile_data || {};
             
             return res.status(200).json({
@@ -212,22 +190,12 @@ exports.verifyOTP = async (req, res) => {
     } catch (error) {
         console.error('Error verifying OTP:', error);
         
-        // Handle authentication errors specifically
         if (error.response?.status === 401 || error.response?.data?.message?.includes('token')) {
-            try {
-                await refreshAuthToken();
-                return res.status(503).json({
-                    success: false,
-                    message: 'Authentication refreshed, please try again',
-                    error: 'temporary_auth_error'
-                });
-            } catch (authError) {
-                return res.status(500).json({
-                    success: false,
-                    message: 'Failed to authenticate with Sandbox API',
-                    error: authError.message
-                });
-            }
+            return res.status(503).json({
+                success: false,
+                message: 'Authentication error, please try again',
+                error: 'temporary_auth_error'
+            });
         }
         
         return res.status(error.response?.status || 500).json({
@@ -238,22 +206,21 @@ exports.verifyOTP = async (req, res) => {
     }
 };
 
-// Directly expose the token refresh function for manual use if needed
 exports.refreshAuthToken = refreshAuthToken;
 
-// Add a health check endpoint to test if the auth is working
+// Optional: Health check endpoint for testing token generation
 exports.checkAuthStatus = async (req, res) => {
     try {
         const token = await getAuthToken();
         return res.status(200).json({
             success: true,
-            message: 'Authentication token is valid',
-            tokenExpiresIn: Math.floor((tokenExpiryTime - Date.now()) / 1000) // seconds remaining
+            message: 'New authentication token obtained',
+            token // you may choose not to return the token in production
         });
     } catch (error) {
         return res.status(500).json({
             success: false,
-            message: 'Failed to authenticate with Sandbox API',
+            message: 'Failed to obtain a new token',
             error: error.message
         });
     }
