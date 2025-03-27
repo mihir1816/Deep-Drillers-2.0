@@ -10,7 +10,6 @@ const fs = require("fs");
 // JWT Secret
 const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
 
-
 // Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {

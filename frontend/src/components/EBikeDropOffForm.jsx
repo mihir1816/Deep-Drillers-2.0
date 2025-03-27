@@ -21,6 +21,17 @@ const EBikeDropOffForm = () => {
       drivingLicense: "",
       address: "",
     },
+    damageAssessment: {
+      hasDamage: false,
+      bodyDamage: false,
+      wheelDamage: false,
+      seatDamage: false,
+      brakesDamage: false,
+      lightsDamage: false,
+      batteryDamage: false,
+      otherDamage: false,
+      damageNotes: "",
+    }
   })
 
   // Fetch license image when driving license number changes
@@ -60,6 +71,48 @@ const EBikeDropOffForm = () => {
         ...prevState,
         [name]: value,
       }))
+    }
+  }
+
+  const handleCheckboxChange = (e) => {
+    const { name, checked } = e.target
+    if (name.includes(".")) {
+      const [parent, child] = name.split(".")
+      setFormData((prevState) => ({
+        ...prevState,
+        [parent]: {
+          ...prevState[parent],
+          [child]: checked,
+        },
+      }))
+
+      // If any damage checkbox is checked, automatically set hasDamage to true
+      if (parent === "damageAssessment" && child !== "hasDamage" && checked) {
+        setFormData((prevState) => ({
+          ...prevState,
+          damageAssessment: {
+            ...prevState.damageAssessment,
+            hasDamage: true,
+          },
+        }))
+      }
+      
+      // If hasDamage is unchecked, reset all damage checkboxes
+      if (parent === "damageAssessment" && child === "hasDamage" && !checked) {
+        setFormData((prevState) => ({
+          ...prevState,
+          damageAssessment: {
+            ...prevState.damageAssessment,
+            bodyDamage: false,
+            wheelDamage: false,
+            seatDamage: false,
+            brakesDamage: false,
+            lightsDamage: false,
+            batteryDamage: false,
+            otherDamage: false,
+          },
+        }))
+      }
     }
   }
 
@@ -117,6 +170,7 @@ const EBikeDropOffForm = () => {
           bookingId: data.data.booking?.id || "",
           address: "", // The API doesn't seem to provide address
         },
+        damageAssessment: prevState.damageAssessment
       }))
   
       setShowQRScanner(false)
@@ -168,7 +222,10 @@ const EBikeDropOffForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ bookingId: bookingId }),
+        body: JSON.stringify({
+          bookingId: bookingId,
+          damageAssessment: formData.damageAssessment
+        }),
       })
 
       const confirmTextResponse = await confirmResponse.text()
@@ -191,6 +248,17 @@ const EBikeDropOffForm = () => {
           drivingLicense: "",
           address: "",
         },
+        damageAssessment: {
+          hasDamage: false,
+          bodyDamage: false,
+          wheelDamage: false,
+          seatDamage: false,
+          brakesDamage: false,
+          lightsDamage: false,
+          batteryDamage: false,
+          otherDamage: false,
+          damageNotes: "",
+        }
       })
       setDropOffPhotos([])
       setIsVerified(false)
@@ -400,6 +468,149 @@ const EBikeDropOffForm = () => {
             </div>
           )}
 
+          {/* Damage Assessment Section - Add this after QR scan or manual entry */}
+          <div className="border-t pt-6 border-gray-200">
+            <h3 className="text-lg font-semibold mb-4">Vehicle Condition Assessment</h3>
+            
+            <div className="mb-4">
+              <div className="flex items-center mb-2">
+                <input
+                  type="checkbox"
+                  id="hasDamage"
+                  name="damageAssessment.hasDamage"
+                  checked={formData.damageAssessment.hasDamage}
+                  onChange={handleCheckboxChange}
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+                />
+                <label htmlFor="hasDamage" className="ml-2 font-semibold text-gray-700">
+                  Vehicle has damage
+                </label>
+              </div>
+            </div>
+            
+            {formData.damageAssessment.hasDamage && (
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-600 mb-3">Select all areas that have damage:</p>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="bodyDamage"
+                      name="damageAssessment.bodyDamage"
+                      checked={formData.damageAssessment.bodyDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="bodyDamage" className="ml-2 text-gray-700">
+                      Frame/Body Damage
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="wheelDamage"
+                      name="damageAssessment.wheelDamage"
+                      checked={formData.damageAssessment.wheelDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="wheelDamage" className="ml-2 text-gray-700">
+                      Wheels/Tires Damage
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="seatDamage"
+                      name="damageAssessment.seatDamage"
+                      checked={formData.damageAssessment.seatDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="seatDamage" className="ml-2 text-gray-700">
+                      Seat Damage
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="brakesDamage"
+                      name="damageAssessment.brakesDamage"
+                      checked={formData.damageAssessment.brakesDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="brakesDamage" className="ml-2 text-gray-700">
+                      Brakes Issues
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="lightsDamage"
+                      name="damageAssessment.lightsDamage"
+                      checked={formData.damageAssessment.lightsDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="lightsDamage" className="ml-2 text-gray-700">
+                      Lights/Indicators Issues
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="batteryDamage"
+                      name="damageAssessment.batteryDamage"
+                      checked={formData.damageAssessment.batteryDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="batteryDamage" className="ml-2 text-gray-700">
+                      Battery/Electrical Issues
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="otherDamage"
+                      name="damageAssessment.otherDamage"
+                      checked={formData.damageAssessment.otherDamage}
+                      onChange={handleCheckboxChange}
+                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    />
+                    <label htmlFor="otherDamage" className="ml-2 text-gray-700">
+                      Other Issues
+                    </label>
+                  </div>
+                </div>
+                
+                <div className="mt-4">
+                  <label htmlFor="damageNotes" className="block mb-1 text-sm font-medium text-gray-700">
+                    Damage Description (required if damage is reported)
+                  </label>
+                  <textarea
+                    id="damageNotes"
+                    name="damageAssessment.damageNotes"
+                    value={formData.damageAssessment.damageNotes}
+                    onChange={handleInputChange}
+                    rows="3"
+                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Please describe the damage in detail..."
+                    required={formData.damageAssessment.hasDamage}
+                  ></textarea>
+                </div>
+              </div>
+            )}
+          </div>
+
           {/* Optional Fields */}
           <div className="space-y-6">
             <div>
@@ -447,8 +658,8 @@ const EBikeDropOffForm = () => {
 
           {/* Manual Verification Checkbox */}
           <div className="mt-6 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <h3 className="text-lg font-semibold mb-2">Identity Verification</h3>
-            <p className="mb-4 text-gray-600">Please manually verify the user's face against their driving license photo.</p>
+            <h3 className="text-lg font-semibold mb-2">Identity Verification <span className="text-red-500">*</span></h3>
+            <p className="mb-4 text-gray-600">Please manually verify the user's face against their driving license photo before confirming the drop off.</p>
             
             <div className="flex items-center">
               <input
@@ -469,6 +680,14 @@ const EBikeDropOffForm = () => {
                 <p>Please enter driving license details to enable verification</p>
               </div>
             )}
+            
+            {formData.userDetails.drivingLicense && !isVerified && (
+              <div className="mt-2 bg-blue-50 border-l-4 border-blue-500 p-3">
+                <p className="text-blue-700 text-sm">
+                  <strong>Required:</strong> You must check this box to enable the Confirm Drop Off button
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Validation for Booking ID */}
@@ -478,12 +697,29 @@ const EBikeDropOffForm = () => {
             </div>
           )}
 
-          {/* Submit Button */}
+          {/* Submit Button - Add prominent visual cue when verification is missing */}
+          {formData.userDetails.drivingLicense && !isVerified && (
+            <div className="bg-amber-50 p-3 rounded-lg border border-amber-200 mb-3 animate-pulse">
+              <div className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                </svg>
+                <p className="text-sm font-medium text-amber-700">Please complete the identity verification above to enable this button</p>
+              </div>
+            </div>
+          )}
+          
           <button
             type="submit"
-            disabled={!isVerified || isSubmitting || (!bookingId && entryMethod === "manual")}
+            disabled={
+              !isVerified || 
+              isSubmitting || 
+              (!bookingId && entryMethod === "manual") ||
+              (formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes)
+            }
             className={`w-full py-3 rounded-lg transition duration-200 ${
-              isVerified && !isSubmitting && (bookingId || entryMethod !== "manual")
+              isVerified && !isSubmitting && (bookingId || entryMethod !== "manual") &&
+              !(formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes)
                 ? "bg-blue-600 text-white hover:bg-blue-700"
                 : "bg-gray-400 text-white cursor-not-allowed"
             }`}

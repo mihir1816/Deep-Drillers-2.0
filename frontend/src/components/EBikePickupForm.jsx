@@ -100,13 +100,9 @@ const EBikePickupForm = () => {
       const data = await response.json()
       console.log("API Response:", data)
 
-
-
       console.log("data.user", data.data.user)
       
       // Store the booking ID from the API response
-    
-
       
       setBookingId(result) // Correctly set the extracted value
 
@@ -143,7 +139,7 @@ const EBikePickupForm = () => {
     } else {
       toast.error("Identity verification removed")
     }
-  }
+  } 
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -159,8 +155,6 @@ const EBikePickupForm = () => {
       return
     }
     
-    
-    
     if (!bookingId) {
       console.log()
       toast.error("Booking ID is required")
@@ -170,16 +164,22 @@ const EBikePickupForm = () => {
     setIsSubmitting(true)
 
     try {
+      // Create FormData object to handle file uploads
+      const formDataToSend = new FormData();
+      formDataToSend.append('bookingId', bookingId);
+
+      // Append each photo to FormData
+      pickupPhotos.forEach((photo, index) => {
+        formDataToSend.append('photos', photo);
+      });
+
       // Send confirmation to the admin-pickup-confirm endpoint
       const confirmResponse = await fetch("http://localhost:5000/api/admin-pickup-confirm", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ bookingId: bookingId }),
-      })
+        body: formDataToSend // Send FormData instead of JSON
+      });
 
-      const confirmTextResponse = await confirmResponse.text()
+      const confirmTextResponse = await confirmResponse.text();
       
       if (!confirmResponse.ok) {
         console.error("Error confirming pickup:", confirmTextResponse)

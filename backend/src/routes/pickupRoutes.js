@@ -1,12 +1,24 @@
 const express = require('express');
 const router = express.Router();
-const { adminPickup } = require('../controllers/pickupController');
-const { adminPickupConfirm } = require('../controllers/pickupController');
+const { adminPickup, adminPickupConfirm } = require('../controllers/pickupController');
+const { upload } = require('../middleware/multer.middleware');
 
-// Admin pickup route
+// Route for admin pickup
+
 router.post('/admin-pickup', adminPickup);
 
-// Admin pickup confirm route   
-router.post('/admin-pickup-confirm', adminPickupConfirm);
+// Route for admin pickup confirmation with file upload
+router.post(
+  '/admin-pickup-confirm',
+  upload.fields([{ name: 'abc', maxCount: 5 }]), // Ensure the correct field name
+  (req, res, next) => {
+    console.log("Request body:", req.body);
+    console.log("Request files:", req.files);
+    next();
+  },
+  adminPickupConfirm
+);
 
 module.exports = router;
+
+

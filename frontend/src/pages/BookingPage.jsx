@@ -105,7 +105,6 @@ function BookingPage() {
     const hours = calculateDuration()
     let discount = 0
 
-    
 
     const basePrice = hours * (vehicle?.pricePerHour || 0)
     const discountedPrice = basePrice 
@@ -401,4 +400,6 @@ function BookingPage() {
   )
 }
 
-export default BookingPage
+export default BookingPage 
+
+

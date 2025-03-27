@@ -31,17 +31,13 @@ const bookingSchema = new mongoose.Schema(
         },
         paymentMethod: {
             type: String,
-            enum: ["wallet", "card", "paypal"],
+            enum: ["wallet", "paypal"],
             required: true,
         },
         status: {
             type: String,
             enum: ["pending", "active", "completed", "cancelled"],
             default: "pending",
-        },
-        qrCode: {
-            type: String,
-            required: true,
         },
         // Pickup details
         pickupTime: {
