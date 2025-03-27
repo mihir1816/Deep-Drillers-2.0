@@ -20,7 +20,12 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // CORS configuration
-app.use(cors());
+app.use(
+    cors({
+        origin: "*",
+        credentials: true,
+    })
+);
 
 // Import routes - check if they exist before using them
 const authRoutes = require("./routes/auth");
@@ -33,11 +38,9 @@ const kycRoutes = require("./routes/kyc");
 const otpRoutes = require("./routes/otp");
 const bookingRoutes = require("./routes/booking");
 const pickupRoutes = require("./routes/pickupRoutes");
-const dropoffRoutes = require("./routes/dropoffRoutes");
 const userBookingRoutes = require("./routes/userBooking");
 
 app.use('/api', pickupRoutes);
-app.use('/api', dropoffRoutes);
 app.use('/api', userBookingRoutes);
 
 // Routes
@@ -53,34 +56,14 @@ app.use("/api/bookings", bookingRoutes);
 app.use('/api', vehicleRoutes);
 app.use('/api/kyc', kycRoutes);
 
-// Add request logging middleware
+// Log all incoming requests
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`, {
-    query: req.query,
-    body: req.body,
-    headers: {
-      'content-type': req.headers['content-type'],
-      'user-agent': req.headers['user-agent'],
-    }
-  });
-  
-  // Capture the original send method
-  const originalSend = res.send;
-  
-  // Override the send method to log responses
-  res.send = function(body) {
-    console.log(`[${new Date().toISOString()}] Response for ${req.method} ${req.url}:`, {
-      statusCode: res.statusCode,
-      body: typeof body === 'string' && body.length < 1000 ? body : (
-        typeof body === 'object' ? 'JSON Response' : `${body.substring(0, 100)}...`
-      )
+    console.log(`${req.method} ${req.url}`, {
+        query: req.query,
+        body: req.body,
+        headers: req.headers,
     });
-    
-    // Call the original send method
-    return originalSend.call(this, body);
-  };
-  
-  next();
+    next();
 });
 
 // Basic route for testing
