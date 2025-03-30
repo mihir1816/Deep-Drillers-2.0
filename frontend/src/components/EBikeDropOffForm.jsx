@@ -33,6 +33,7 @@ const EBikeDropOffForm = () => {
       damageNotes: "",
     }
   })
+  const [pickupImages, setPickupImages] = useState([]);
 
   // Fetch license image when driving license number changes
   useEffect(() => {
@@ -152,6 +153,11 @@ const EBikeDropOffForm = () => {
       
       const data = await response.json()
 
+      // Store pickup images
+      if (data.data.vehicleImages && data.data.vehicleImages.length > 0) {
+        setPickupImages(data.data.vehicleImages)
+      }
+
       const [vehicleResponse, userResponse] = await Promise.all([
         fetch(`http://localhost:5000/api/vehicle/${data.data.vehicle}`),
         fetch(`http://localhost:5000/api/users/${data.data.user}`)
@@ -259,32 +265,7 @@ const EBikeDropOffForm = () => {
       toast.success("E-Bike drop off successfully confirmed!");
       
       // Reset form
-      setFormData({
-        bikeId: "",
-        userDetails: {
-          name: "",
-          email: "",
-          phoneNumber: "",
-          drivingLicense: "",
-          address: "",
-        },
-        damageAssessment: {
-          hasDamage: false,
-          bodyDamage: false,
-          wheelDamage: false,
-          seatDamage: false,
-          brakesDamage: false,
-          lightsDamage: false,
-          batteryDamage: false,
-          otherDamage: false,
-          damageNotes: "",
-        }
-      });
-      setDropOffPhotos([]);
-      setIsVerified(false);
-      setLicenseImageUrl(null);
-      setEntryMethod(null);
-      setBookingId("");
+      resetForm();
       
     } catch (error) {
       console.error("Error submitting form:", error);
@@ -298,6 +279,36 @@ const EBikeDropOffForm = () => {
   const handleBookingIdChange = (e) => {
     setBookingId(e.target.value)
   }
+
+  const resetForm = () => {
+    setFormData({
+      bikeId: "",
+      userDetails: {
+        name: "",
+        email: "",
+        phoneNumber: "",
+        drivingLicense: "",
+        address: "",
+      },
+      damageAssessment: {
+        hasDamage: false,
+        bodyDamage: false,
+        wheelDamage: false,
+        seatDamage: false,
+        brakesDamage: false,
+        lightsDamage: false,
+        batteryDamage: false,
+        otherDamage: false,
+        damageNotes: "",
+      }
+    });
+    setDropOffPhotos([]);
+    setIsVerified(false);
+    setLicenseImageUrl(null);
+    setEntryMethod(null);
+    setBookingId("");
+    setPickupImages([]);
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -488,7 +499,29 @@ const EBikeDropOffForm = () => {
             </div>
           )}
 
-          {/* Damage Assessment Section - Add this after QR scan or manual entry */}
+          {/* Pickup Images Display */}
+          {pickupImages.length > 0 && (
+            <div className="border-t pt-6 border-gray-200">
+              <h3 className="text-lg font-semibold mb-4">Vehicle Condition at Pickup</h3>
+              <p className="text-sm text-gray-600 mb-3">Compare these images taken during pickup to assess any new damage:</p>
+              <div className="grid grid-cols-2 gap-4">
+                {pickupImages.map((imageUrl, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={imageUrl}
+                      alt={`Vehicle condition at pickup ${index + 1}`}
+                      className="w-full h-48 object-cover rounded-lg shadow-md"
+                    />
+                    <div className="absolute bottom-2 right-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm">
+                      Photo {index + 1}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Damage Assessment Section - Now comes after pickup images */}
           <div className="border-t pt-6 border-gray-200">
             <h3 className="text-lg font-semibold mb-4">Vehicle Condition Assessment</h3>
             
