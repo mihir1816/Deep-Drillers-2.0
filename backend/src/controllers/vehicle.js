@@ -1,12 +1,11 @@
 const Vehicle = require('../models/Vehicle');
 
-// Get vehicle by ID
 const getVehicleById = async (req, res) => {
   try {
     console.log('Getting vehicle by ID:', req.params.id);
 
-    const vehicle = await Vehicle.findById(req.params.id).populate('station');
-    
+    const vehicle = await Vehicle.findById(req.params.id);
+
     if (!vehicle) {
       return res.status(404).json({ message: 'Vehicle not found' });
     }

@@ -24,7 +24,7 @@ function BookingPage() {
   const [bookingId, setBookingId] = useState(null)
   const [qrCode, setQrCode] = useState("")
 
-  // Fetch vehicle details
+
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       setLoading(true)
@@ -47,8 +47,8 @@ function BookingPage() {
           setVehicle(data)
 
           // Fetch station details if stationId is available
-          if (data.station._id) {
-            const stationResponse = await fetch(`http://localhost:5000/api/locations/${data.station._id}`, {
+          if (data.station) {
+            const stationResponse = await fetch(`http://localhost:5000/api/locations/${data.station}`, {
               method: "GET",
               headers: {
                 Accept: "application/json",

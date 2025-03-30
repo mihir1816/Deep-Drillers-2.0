@@ -138,41 +138,51 @@ const EBikeDropOffForm = () => {
       setIsSubmitting(true)
       
       // Call the API with the QR code data
-      const response = await fetch("http://localhost:5000/api/admin-dropoff", {
+      const response = await fetch("http://localhost:5000/api/admin-pickup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ dropOffString: result }),
+        body: JSON.stringify({ pickupString: result }),
       })
-      
+
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`)
       }
       
       const data = await response.json()
-      console.log("API Response:", data)
 
-      console.log("data.user", data.data.user)
+      const [vehicleResponse, userResponse] = await Promise.all([
+        fetch(`http://localhost:5000/api/vehicle/${data.data.vehicle}`),
+        fetch(`http://localhost:5000/api/users/${data.data.user}`)
+      ])
+      
+      if (!vehicleResponse.ok || !userResponse.ok) {
+        throw new Error('Failed to fetch vehicle or user details')
+      }
+      
+      const vehicleData = await vehicleResponse.json()
+      const userData = await userResponse.json()
+      
+      console.log("Vehicle Data:", vehicleData)
+      console.log("User Data:", userData)
       
       // Store the booking ID from the API response
-      setBookingId(result) // Correctly set the extracted value
-      
+      setBookingId(data.data._id) // Correctly set the extracted value
+
       // Update form with the data from API
-      setFormData((prevState) => ({
+      setFormData((prevState) => ({ 
         ...prevState,
-        bikeId: data.data.vehicle?.numberPlate || "",
-        userDetails: {
-          name: data.data.user?.name || "",
-          email: data.data.user?.email || "",
-          phoneNumber: data.data.user?.phone || "",
-          drivingLicense: data.data.user?.drivingLicense?.number || "",
-          bookingId: data.data.booking?.id || "",
-          address: "", // The API doesn't seem to provide address
+        bikeId: vehicleData?.numberPlate || "",
+        userDetails: {  
+          name: userData.data?.name || "",
+          email: userData.data?.email || "",
+          phoneNumber: userData.data?.phone || "",
+          drivingLicense: userData.data?.drivingLicense?.number || "",
         },
         damageAssessment: prevState.damageAssessment
       }))
-  
+      setLicenseImageUrl(userData.data?.drivingLicense?.image)
       setShowQRScanner(false)
       toast.success("QR Code successfully scanned and details retrieved!")
     } catch (error) {
@@ -194,49 +204,59 @@ const EBikeDropOffForm = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     // Validate required fields
     if (!formData.userDetails.drivingLicense) {
-      toast.error("Driving license number is required")
-      return
+      toast.error("Driving license number is required");
+      return;
     }
 
     if (!isVerified) {
-      toast.error("Please verify user's identity against driving license photo")
-      return
+      toast.error("Please verify user's identity against driving license photo");
+      return;
     }
     
     if (!bookingId) {
-      console.log()
-      toast.error("Booking ID is required")
-      return
+      toast.error("Booking ID is required");
+      return;
     }
 
-    setIsSubmitting(true)
+    if (formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes) {
+      toast.error("Please provide damage notes when damage is reported");
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
+      // Create FormData for file upload and other data
+      const formDataToSend = new FormData();
+      formDataToSend.append('bookingId', bookingId);
+      formDataToSend.append('damageAssessment', JSON.stringify(formData.damageAssessment));
+
+      // Append photos with correct field name 'abc'
+      dropOffPhotos.forEach((photo) => {
+        formDataToSend.append('abc', photo);
+      });
+
       // Send confirmation to the admin-dropoff-confirm endpoint
       const confirmResponse = await fetch("http://localhost:5000/api/admin-dropoff-confirm", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          bookingId: bookingId,
-          damageAssessment: formData.damageAssessment
-        }),
-      })
+        body: formDataToSend, // Send FormData instead of JSON
+      });
 
-      const confirmTextResponse = await confirmResponse.text()
-      
       if (!confirmResponse.ok) {
-        console.error("Error confirming drop off:", confirmTextResponse)
-        toast.error("Failed to confirm e-bike drop off. Please try again.")
-        return
+        const errorText = await confirmResponse.text();
+        console.error("Error confirming drop off:", errorText);
+        toast.error("Failed to confirm e-bike drop off. Please try again.");
+        return;
       }
 
-      toast.success("E-Bike drop off successfully confirmed!")
+      const responseData = await confirmResponse.json();
+      console.log("Drop-off response:", responseData);
+
+      toast.success("E-Bike drop off successfully confirmed!");
       
       // Reset form
       setFormData({
@@ -259,20 +279,20 @@ const EBikeDropOffForm = () => {
           otherDamage: false,
           damageNotes: "",
         }
-      })
-      setDropOffPhotos([])
-      setIsVerified(false)
-      setLicenseImageUrl(null)
-      setEntryMethod(null)
-      setBookingId("") // Reset booking ID
+      });
+      setDropOffPhotos([]);
+      setIsVerified(false);
+      setLicenseImageUrl(null);
+      setEntryMethod(null);
+      setBookingId("");
       
     } catch (error) {
-      console.error("Error submitting form:", error)
-      toast.error(`An error occurred: ${error.message || "Failed to process drop off"}`)
+      console.error("Error submitting form:", error);
+      toast.error(`An error occurred: ${error.message || "Failed to process drop off"}`);
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   // New function to handle manual booking ID input
   const handleBookingIdChange = (e) => {

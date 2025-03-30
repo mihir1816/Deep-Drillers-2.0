@@ -21,28 +21,14 @@ const EBikePickupForm = () => {
       drivingLicense: "",
       address: "",
     },
-  })
-
-  // Fetch license image when driving license number changes
-  useEffect(() => {
-    const fetchLicenseImage = async () => {
-      if (formData.userDetails.drivingLicense) {
-        try {
-          const response = await fetch(`/api/licenses/${formData.userDetails.drivingLicense}`)
-          const data = await response.json()
-          if (data.imageUrl) {
-            setLicenseImageUrl(data.imageUrl)
-          }
-        } catch (error) {
-          console.error("Error fetching license image:", error)
-        }
-      } else {
-        setLicenseImageUrl(null)
-      }
+    bookingDetails: {
+      pickupDate: "",
+      duration: "",
+      totalAmount: "",
+      paymentMethod: "",
+      status: ""
     }
-
-    fetchLicenseImage()
-  }, [formData.userDetails.drivingLicense])
+  })
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -79,53 +65,72 @@ const EBikePickupForm = () => {
     }
   }
 
+  // automatic fetch booking data 
   const handleQRResult = async (result) => {
     try {
       console.log("Raw QR Data:", result)
       setIsSubmitting(true)
       
-      // Call the API with the QR code data
+      // Call the initial pickup verification API
       const response = await fetch("http://localhost:5000/api/admin-pickup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ pickupString: result }),
-      })
+      })  
       
       if (!response.ok) {
         throw new Error(`API returned status ${response.status}`)
       }
       
-      const data = await response.json()
-      console.log("API Response:", data)
-
-      console.log("data.user", data.data.user)
+      const bookingData = await response.json()
+      console.log("Booking Data:", bookingData)
       
-      // Store the booking ID from the API response
+      // Store the booking ID
+      setBookingId(bookingData.data._id)
       
-      setBookingId(result) // Correctly set the extracted value
-
+      // Make additional API calls to get vehicle and user details
+      const [vehicleResponse, userResponse] = await Promise.all([
+        fetch(`http://localhost:5000/api/vehicle/${bookingData.data.vehicle}`),
+        fetch(`http://localhost:5000/api/users/${bookingData.data.user}`)
+      ])
       
-      // Update form with the data from API
+      if (!vehicleResponse.ok || !userResponse.ok) {
+        throw new Error('Failed to fetch vehicle or user details')
+      }
+      
+      const vehicleData = await vehicleResponse.json()
+      const userData = await userResponse.json()
+      
+      console.log("Vehicle Data:", vehicleData)
+      console.log("User Data:", userData)
+      
+      // Update form with all the collected data
       setFormData((prevState) => ({
         ...prevState,
-        bikeId: data.data.vehicle?.numberPlate || "",
+        bikeId: vehicleData?.numberPlate || "",
         userDetails: {
-          name: data.data.user?.name || "",
-          email: data.data.user?.email || "",
-          phoneNumber: data.data.user?.phone || "",
-          drivingLicense: data.data.user?.drivingLicense?.number || "",
-          bookingId: data.data.booking?.id || "",
-          address: "", // The API doesn't seem to provide address
+          name: userData.data?.name || "",
+          email: userData.data?.email || "",
+          phoneNumber: userData.data?.phone || "",
+          drivingLicense: userData.data?.drivingLicense?.number || "",
+          address: userData.data?.address || "",
         },
+        bookingDetails: {
+          pickupDate: new Date(bookingData.data.pickupDate).toLocaleString(),
+          duration: bookingData.data.duration,
+          totalAmount: bookingData.data.totalAmount,
+          paymentMethod: bookingData.data.paymentMethod,
+          status: bookingData.data.status
+        }
       }))
-  
+      setLicenseImageUrl(userData.data?.drivingLicense?.image)
       setShowQRScanner(false)
       toast.success("QR Code successfully scanned and details retrieved!")
     } catch (error) {
       console.error("Error processing QR code:", error)
-      toast.error("Error retrieving details from QR code. Please try again or enter details manually.")
+      toast.error("Error retrieving details from QR code. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
@@ -144,80 +149,80 @@ const EBikePickupForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // Validate required fields
-    if (!formData.userDetails.drivingLicense) {
-      toast.error("Driving license number is required")
+    // Validation
+    if (!bookingId) {
+      toast.error("Booking ID is required")
       return
     }
 
     if (!isVerified) {
-      toast.error("Please verify user's identity against driving license photo")
-      return
-    }
-    
-    if (!bookingId) {
-      console.log()
-      toast.error("Booking ID is required")
+      toast.error("Please verify user's identity")
       return
     }
 
     setIsSubmitting(true)
 
     try {
-      // Create FormData object to handle file uploads
-      const formDataToSend = new FormData();
-      formDataToSend.append('bookingId', bookingId);
+      // Create FormData for file upload
+      const formData = new FormData()
+      formData.append('bookingId', bookingId)
 
-      // Append each photo to FormData
-      pickupPhotos.forEach((photo, index) => {
-        formDataToSend.append('photos', photo);
-      });
+      // Append photos with correct field name 'abc'
+      pickupPhotos.forEach((photo) => {
+        formData.append('abc', photo)
+      })
 
-      // Send confirmation to the admin-pickup-confirm endpoint
-      const confirmResponse = await fetch("http://localhost:5000/api/admin-pickup-confirm", {
+      const response = await fetch("http://localhost:5000/api/admin-pickup-confirm", {
         method: "POST",
-        body: formDataToSend // Send FormData instead of JSON
-      });
+        body: formData, // Don't set Content-Type header with FormData
+      })
 
-      const confirmTextResponse = await confirmResponse.text();
-      
-      if (!confirmResponse.ok) {
-        console.error("Error confirming pickup:", confirmTextResponse)
-        toast.error("Failed to confirm e-bike pickup. Please try again.")
-        return
+      if (!response.ok) {
+        toast.error("Failed to confirm pickup , fill the form again")
+        throw new Error("Failed to confirm pickup")
       }
 
-      toast.success("E-Bike pickup successfully confirmed!")
+      const data = await response.json()
+      toast.success("Pickup confirmed successfully!")
       
       // Reset form
-      setFormData({
-        bikeId: "",
-        userDetails: {
-          name: "",
-          email: "",
-          phoneNumber: "",
-          drivingLicense: "",
-          address: "",
-        },
-      })
-      setPickupPhotos([])
-      setIsVerified(false)
-      setLicenseImageUrl(null)
-      setEntryMethod(null)
-      setBookingId("") // Reset booking ID
-      
+      resetForm()
     } catch (error) {
-      console.error("Error submitting form:", error)
-      toast.error(`An error occurred: ${error.message || "Failed to process pickup"}`)
+      console.error("Error confirming pickup:", error)
+      toast.error("Failed to confirm pickup. Please try again.")
     } finally {
       setIsSubmitting(false)
     }
   }
 
+  const resetForm = () => {
+    setFormData({
+      bikeId: "",
+      userDetails: {
+        name: "",
+        email: "",
+        phoneNumber: "",
+        drivingLicense: "",
+        address: "",
+      },
+      bookingDetails: {
+        pickupDate: "",
+        duration: "",
+        totalAmount: "",
+        paymentMethod: "",
+        status: ""
+      }
+    })
+    setPickupPhotos([])
+    setIsVerified(false)
+    setBookingId("")
+    setShowQRScanner(false)
+  }
+
   // New function to handle manual booking ID input
   const handleBookingIdChange = (e) => {
     setBookingId(e.target.value)
-  }
+  } 
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -410,16 +415,6 @@ const EBikePickupForm = () => {
 
           {/* Optional Fields */}
           <div className="space-y-6">
-            <div>
-              <label className="block mb-1 font-medium">Address (Optional)</label>
-              <textarea
-                name="userDetails.address"
-                value={formData.userDetails.address}
-                onChange={handleInputChange}
-                className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                rows="3"
-              />
-            </div>
 
             <div>
               <label className="block mb-1 font-medium">Pickup Photos (Optional)</label>

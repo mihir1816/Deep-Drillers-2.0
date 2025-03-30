@@ -1,6 +1,6 @@
 const Booking = require('../models/Booking'); // Import your Booking model
 const Station = require('../models/Station'); // Import Station model
-const { uploadCloudinary } = require('../utils/cloudinary.js');
+const { uploadOnCloudinary } = require('../utils/cloudinary.js');
 
 exports.adminPickup = async (req, res) => {
   try {
@@ -10,7 +10,7 @@ exports.adminPickup = async (req, res) => {
 
     const bookingId = pickupString
 
-    if (!bookingId) {
+    if (!bookingId) { 
       return res.status(400).json({ success: false, message: 'Booking ID is missing' });
     } 
 
@@ -20,14 +20,14 @@ exports.adminPickup = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    const station = await Station.findById(booking.station);
-    if (station) {
-      // Remove the vehicle ID from availableVehicles array
-      station.availableVehicles = station.availableVehicles.filter(
-        vehicleId => vehicleId.toString() !== booking.vehicle.toString()
-      );
-      await station.save();
-    }
+    // const station = await Station.findById(booking.station);
+    // if (station) {
+    //   // Remove the vehicle ID from availableVehicles array
+    //   station.availableVehicles = station.availableVehicles.filter(
+    //     vehicleId => vehicleId.toString() !== booking.vehicle.toString()
+    //   );
+    //   await station.save();
+    // }
 
     res.status(200).json({ success: true, data: booking });
   } catch (error) {
@@ -41,8 +41,8 @@ exports.adminPickupConfirm = async (req, res) => {
     console.log("Request body:", req.body);
     console.log("Request files:", req.files);
 
-    const { bookingId } = req.body;
-    const files = req.files?.abc; // Use 'abc' since multer uses this field name
+    const { bookingId } = req.body; 
+    const files = req.files?.abc; 
 
     console.log("Extracted bookingId:", bookingId);
 
@@ -62,8 +62,10 @@ exports.adminPickupConfirm = async (req, res) => {
       uploadedUrls = await Promise.all(
         files.map(async (file) => {
           try {
-            const result = await uploadCloudinary(file.path, 'pickup-photos');
-            return result.secure_url;
+            console.log("About to upload to cloudinary with path:", file.path);
+            const result = await uploadOnCloudinary(file.path);
+            console.log("Cloudinary response:", result);
+            return result?.url || "";
           } catch (error) {
             console.error('Error uploading to Cloudinary:', error);
             throw error;
@@ -86,7 +88,11 @@ exports.adminPickupConfirm = async (req, res) => {
     });
   } catch (error) {
     console.error('Error confirming booking:', error);
-    res.status(500).json({ success: false, message: 'Internal server error' });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Internal server error',
+      error: error.message
+    });
   }
 };
 

@@ -5,8 +5,6 @@ const helmet = require("helmet");
 const dotenv = require("dotenv");
 const connectDB = require("./config/database.js");
 
-
-
 // Load environment variables
 dotenv.config();
 
@@ -25,7 +23,7 @@ app.use(cors());
 // Import routes - check if they exist before using them
 const authRoutes = require("./routes/auth");
 // Uncomment these as you implement them
-// const userRoutes = require('./routes/users');
+const userRoutes = require('./routes/userRoutes');
 const vehicleRoutes = require('./routes/vehicle');
 const locationRoutes = require("./routes/location");
 // const contractRoutes = require('./routes/contracts');
@@ -40,10 +38,9 @@ app.use('/api', pickupRoutes);
 app.use('/api', dropoffRoutes);
 app.use('/api', userBookingRoutes);
 
-// Routes
 app.use("/api/auth", authRoutes);
 // Uncomment these as you implement them
-// app.use('/api/users', userRoutes);
+app.use('/api/users', userRoutes);
 // app.use('/api/vehicles', vehicleRoutes);
 app.use("/api/locations", locationRoutes);
 // app.use('/api/contracts', contractRoutes);

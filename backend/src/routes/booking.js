@@ -5,7 +5,7 @@ const {
     createBooking,
     getUserBookings,
     getBookingDetails,
-    cancelBooking,
+    cancelBooking,  
     verifyQRCode,
     extendBooking,
     addPickupDetails,
