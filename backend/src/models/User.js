@@ -49,20 +49,20 @@ const userSchema = new mongoose.Schema({
             type: Number,
             default: 0,
         },
-        transactions: [
-            {
-                type: {
-                    type: String,
-                    enum: ["CREDIT", "DEBIT"],
-                },
-                amount: Number,
-                description: String,
-                timestamp: {
-                    type: Date,
-                    default: Date.now,
-                },
-            },
-        ],
+        // transactions: [
+        //     {
+        //         type: {
+        //             type: String,
+        //             enum: ["CREDIT", "DEBIT"],
+        //         },
+        //         amount: Number,
+        //         description: String,
+        //         timestamp: {
+        //             type: Date,
+        //             default: Date.now,
+        //         },
+        //     },
+        // ],
     },
     kycStatus: {
         type: String,

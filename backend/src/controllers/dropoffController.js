@@ -2,14 +2,22 @@ const Booking = require('../models/Booking');
 const Vehicle = require('../models/Vehicle');
 const Station = require('../models/Station');
 const { uploadOnCloudinary } = require('../utils/cloudinary.js'); // Changed to match auth
+const User = require('../models/User');
 
 exports.adminDropoffConfirm = async (req, res) => {
   try {
     console.log('Admin dropoff confirm request received:', req.body);
     console.log("Request files:", req.files);
     
-    const { bookingId, damageAssessment } = req.body;
+    const { bookingId, damageAssessment, overtimeCharges } = req.body;
     const files = req.files?.abc; // Changed to match the field name in route
+
+    // Parse damageAssessment if it's a string
+    const parsedDamageAssessment = typeof damageAssessment === 'string' 
+      ? JSON.parse(damageAssessment) 
+      : damageAssessment;
+
+    console.log("Parsed damage assessment:", parsedDamageAssessment);
 
     // Simple validation
     if (!bookingId) {
@@ -21,6 +29,52 @@ exports.adminDropoffConfirm = async (req, res) => {
     if (!booking) {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
+
+    const user = await User.findById(booking.user);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      });
+    }
+
+    // Ensure wallet exists and is properly initialized
+    if (!user.wallet) {
+      user.wallet = {
+        balance: 0,
+        transactions: []
+      };
+    }
+
+    // Calculate total deduction with proper parsing
+    const damageCost = parseFloat(parsedDamageAssessment.totalCost) || 0;
+    const overtimeCost = parseFloat(overtimeCharges) || 0;
+    const totalDeduction = damageCost + overtimeCost;
+
+    console.log("Damage cost:", damageCost);
+    console.log("Overtime cost:", overtimeCost);
+    console.log("Total deduction:", totalDeduction);
+
+    // Ensure balance is a valid number
+    if (typeof user.wallet.balance !== 'number' || isNaN(user.wallet.balance)) {
+      user.wallet.balance = 0;
+    }
+
+    // Deduct from wallet
+    user.wallet.balance -= totalDeduction;
+    console.log("User wallet balance after deduction:", user.wallet.balance);
+    await user.save();
+
+    // Update booking with charges
+    booking.overtimeCharges = overtimeCost;
+    booking.totalCharges = totalDeduction;
+
+    booking.damageReport = {
+      hasDamages: parsedDamageAssessment.hasDamage,
+      notes: parsedDamageAssessment.damageNotes,
+      estimatedRepairCost: damageCost
+    };
+    await booking.save();
 
     // Handle photo uploads if files are present
     let uploadedUrls = [];
@@ -44,17 +98,16 @@ exports.adminDropoffConfirm = async (req, res) => {
       booking.returnTime = new Date();
     }
 
-    // Update vehicle status based on damage assessment
-    const vehicle = await Vehicle.findById(booking.vehicle);
-    if (vehicle) {
-      if (damageAssessment && damageAssessment.hasDamage) {
-        vehicle.status = "MAINTENANCE";
-        vehicle.damageNotes = damageAssessment.damageNotes || "";
-      } else {
-        vehicle.status = "AVAILABLE";
-      }
-      await vehicle.save();
-    }
+    // const vehicle = await Vehicle.findById(booking.vehicle);
+    // if (vehicle) {
+    //   if (parsedDamageAssessment.hasDamage) {
+    //     vehicle.status = "MAINTENANCE";
+    //     vehicle.damageNotes = parsedDamageAssessment.damageNotes || "";
+    //   } else {
+    //     vehicle.status = "AVAILABLE";
+    //   }
+    //   await vehicle.save();
+    // }
 
     // Update station's available vehicles
     const station = await Station.findById(booking.station);
@@ -71,6 +124,7 @@ exports.adminDropoffConfirm = async (req, res) => {
       data: booking,
       message: 'Dropoff confirmed successfully with photos'
     });
+    
   } catch (error) {
     console.error('Error confirming dropoff:', error);
     res.status(500).json({

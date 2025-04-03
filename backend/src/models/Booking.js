@@ -71,6 +71,17 @@ const bookingSchema = new mongoose.Schema(
             notes: String,
             estimatedRepairCost: Number,
         },
+        // Add these new fields for charges
+        overtimeCharges: {
+            type: Number,
+            default: 0,
+            description: "Additional charges for returning after contracted duration"
+        },
+        totalCharges: {
+            type: Number,
+            default: 0,
+            description: "Total charges including damage and overtime fees"
+        },
         returnNotes: {
             type: String,
             description: "Any notes about vehicle condition at return",

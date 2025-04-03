@@ -23,38 +23,64 @@ const EBikeDropOffForm = () => {
     },
     damageAssessment: {
       hasDamage: false,
-      bodyDamage: false,
-      wheelDamage: false,
-      seatDamage: false,
-      brakesDamage: false,
-      lightsDamage: false,
-      batteryDamage: false,
-      otherDamage: false,
+      damages: {
+        // Battery & Electrical (Column 1)
+        batteryCell: { checked: false, cost: 15000, label: "Battery Cells Damage" },
+        bms: { checked: false, cost: 8000, label: "Battery Management System" },
+        motorController: { checked: false, cost: 6000, label: "Motor Controller" },
+        motorWinding: { checked: false, cost: 5000, label: "Motor Winding" },
+        throttle: { checked: false, cost: 800, label: "Throttle System" },
+        display: { checked: false, cost: 2500, label: "LCD Display" },
+        wiring: { checked: false, cost: 1500, label: "Electrical Wiring" },
+        chargerPort: { checked: false, cost: 1000, label: "Charging Port" },
+
+        // Mechanical Components (Column 2)
+        frame: { checked: false, cost: 12000, label: "Frame Damage" },
+        fork: { checked: false, cost: 4000, label: "Front Fork" },
+        rim: { checked: false, cost: 2500, label: "Wheel Rim" },
+        tire: { checked: false, cost: 1800, label: "Tire Damage" },
+        disc: { checked: false, cost: 1200, label: "Brake Disc" },
+        brake: { checked: false, cost: 900, label: "Brake Caliper" },
+        chain: { checked: false, cost: 1000, label: "Chain/Belt Drive" },
+        suspension: { checked: false, cost: 3000, label: "Suspension System" },
+
+        // Accessories & Body (Column 3)
+        headlight: { checked: false, cost: 1200, label: "Headlight Assembly" },
+        taillight: { checked: false, cost: 800, label: "Taillight Assembly" },
+        indicator: { checked: false, cost: 600, label: "Turn Indicators" },
+        mirror: { checked: false, cost: 500, label: "Side Mirrors" },
+        mudguard: { checked: false, cost: 700, label: "Mudguards" },
+        seat: { checked: false, cost: 1500, label: "Seat Assembly" },
+        stand: { checked: false, cost: 600, label: "Side Stand" },
+        speedometer: { checked: false, cost: 2000, label: "Speedometer Unit" }
+      },
       damageNotes: "",
     }
   })
   const [pickupImages, setPickupImages] = useState([]);
+  const [totalDamageCost, setTotalDamageCost] = useState(0);
+  const [overtimeCharges, setOvertimeCharges] = useState(0);
 
-  // Fetch license image when driving license number changes
-  useEffect(() => {
-    const fetchLicenseImage = async () => {
-      if (formData.userDetails.drivingLicense) {
-        try {
-          const response = await fetch(`/api/licenses/${formData.userDetails.drivingLicense}`)
-          const data = await response.json()
-          if (data.imageUrl) {
-            setLicenseImageUrl(data.imageUrl)
-          }
-        } catch (error) {
-          console.error("Error fetching license image:", error)
-        }
-      } else {
-        setLicenseImageUrl(null)
-      }
-    }
+  // // Fetch license image when driving license number changes
+  // useEffect(() => {
+  //   const fetchLicenseImage = async () => {
+  //     if (formData.userDetails.drivingLicense) {
+  //       try {
+  //         const response = await fetch(`/api/licenses/${formData.userDetails.drivingLicense}`)
+  //         const data = await response.json()
+  //         if (data.imageUrl) {
+  //           setLicenseImageUrl(data.imageUrl)
+  //         }
+  //       } catch (error) {
+  //         console.error("Error fetching license image:", error)
+  //       }
+  //     } else {
+  //       setLicenseImageUrl(null)
+  //     }
+  //   }
 
-    fetchLicenseImage()
-  }, [formData.userDetails.drivingLicense])
+  //   fetchLicenseImage()
+  // }, [formData.userDetails.drivingLicense])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -104,13 +130,32 @@ const EBikeDropOffForm = () => {
           ...prevState,
           damageAssessment: {
             ...prevState.damageAssessment,
-            bodyDamage: false,
-            wheelDamage: false,
-            seatDamage: false,
-            brakesDamage: false,
-            lightsDamage: false,
-            batteryDamage: false,
-            otherDamage: false,
+            damages: {
+              batteryCell: { checked: false, cost: 15000, label: "Battery Cells Damage" },
+              bms: { checked: false, cost: 8000, label: "Battery Management System" },
+              motorController: { checked: false, cost: 6000, label: "Motor Controller" },
+              motorWinding: { checked: false, cost: 5000, label: "Motor Winding" },
+              throttle: { checked: false, cost: 800, label: "Throttle System" },
+              display: { checked: false, cost: 2500, label: "LCD Display" },
+              wiring: { checked: false, cost: 1500, label: "Electrical Wiring" },
+              chargerPort: { checked: false, cost: 1000, label: "Charging Port" },
+              frame: { checked: false, cost: 12000, label: "Frame Damage" },
+              fork: { checked: false, cost: 4000, label: "Front Fork" },
+              rim: { checked: false, cost: 2500, label: "Wheel Rim" },
+              tire: { checked: false, cost: 1800, label: "Tire Damage" },
+              disc: { checked: false, cost: 1200, label: "Brake Disc" },
+              brake: { checked: false, cost: 900, label: "Brake Caliper" },
+              chain: { checked: false, cost: 1000, label: "Chain/Belt Drive" },
+              suspension: { checked: false, cost: 3000, label: "Suspension System" },
+              headlight: { checked: false, cost: 1200, label: "Headlight Assembly" },
+              taillight: { checked: false, cost: 800, label: "Taillight Assembly" },
+              indicator: { checked: false, cost: 600, label: "Turn Indicators" },
+              mirror: { checked: false, cost: 500, label: "Side Mirrors" },
+              mudguard: { checked: false, cost: 700, label: "Mudguards" },
+              seat: { checked: false, cost: 1500, label: "Seat Assembly" },
+              stand: { checked: false, cost: 600, label: "Side Stand" },
+              speedometer: { checked: false, cost: 2000, label: "Speedometer Unit" }
+            },
           },
         }))
       }
@@ -153,7 +198,7 @@ const EBikeDropOffForm = () => {
       
       const data = await response.json()
 
-      // Store pickup images
+      // Store pickup images--
       if (data.data.vehicleImages && data.data.vehicleImages.length > 0) {
         setPickupImages(data.data.vehicleImages)
       }
@@ -177,17 +222,34 @@ const EBikeDropOffForm = () => {
       setBookingId(data.data._id) // Correctly set the extracted value
 
       // Update form with the data from API
-      setFormData((prevState) => ({ 
-        ...prevState,
-        bikeId: vehicleData?.numberPlate || "",
-        userDetails: {  
+      if (userData.data) {
+        const userDetails = {
           name: userData.data?.name || "",
           email: userData.data?.email || "",
           phoneNumber: userData.data?.phone || "",
           drivingLicense: userData.data?.drivingLicense?.number || "",
-        },
-        damageAssessment: prevState.damageAssessment
-      }))
+        };
+        
+        setFormData(prevState => ({
+          ...prevState,
+          userDetails,
+          damageAssessment: prevState.damageAssessment
+        }));
+      }
+
+      // Calculate overtime charges
+      const pickupTime = new Date(data.data.pickupTime);
+      const contractedDuration = data.data.duration; // duration in hours
+      const currentTime = new Date();
+      const actualDuration = (currentTime - pickupTime) / (1000 * 60 * 60); // Convert to hours
+      
+      if (actualDuration > contractedDuration) {
+        const extraHours = Math.ceil(actualDuration - contractedDuration);
+        const hourlyRate = data.data.vehicle?.pricePerHour || 0;
+        const overtimeFee = extraHours * hourlyRate;
+        setOvertimeCharges(overtimeFee);
+      }
+
       setLicenseImageUrl(userData.data?.drivingLicense?.image)
       setShowQRScanner(false)
       toast.success("QR Code successfully scanned and details retrieved!")
@@ -228,18 +290,16 @@ const EBikeDropOffForm = () => {
       return;
     }
 
-    if (formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes) {
-      toast.error("Please provide damage notes when damage is reported");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
-      // Create FormData for file upload and other data
       const formDataToSend = new FormData();
       formDataToSend.append('bookingId', bookingId);
-      formDataToSend.append('damageAssessment', JSON.stringify(formData.damageAssessment));
+      formDataToSend.append('damageAssessment', JSON.stringify({
+        ...formData.damageAssessment,
+        totalCost: totalDamageCost
+      }));
+      formDataToSend.append('overtimeCharges', overtimeCharges);
 
       // Append photos with correct field name 'abc'
       dropOffPhotos.forEach((photo) => {
@@ -292,13 +352,32 @@ const EBikeDropOffForm = () => {
       },
       damageAssessment: {
         hasDamage: false,
-        bodyDamage: false,
-        wheelDamage: false,
-        seatDamage: false,
-        brakesDamage: false,
-        lightsDamage: false,
-        batteryDamage: false,
-        otherDamage: false,
+        damages: {
+          batteryCell: { checked: false, cost: 15000, label: "Battery Cells Damage" },
+          bms: { checked: false, cost: 8000, label: "Battery Management System" },
+          motorController: { checked: false, cost: 6000, label: "Motor Controller" },
+          motorWinding: { checked: false, cost: 5000, label: "Motor Winding" },
+          throttle: { checked: false, cost: 800, label: "Throttle System" },
+          display: { checked: false, cost: 2500, label: "LCD Display" },
+          wiring: { checked: false, cost: 1500, label: "Electrical Wiring" },
+          chargerPort: { checked: false, cost: 1000, label: "Charging Port" },
+          frame: { checked: false, cost: 12000, label: "Frame Damage" },
+          fork: { checked: false, cost: 4000, label: "Front Fork" },
+          rim: { checked: false, cost: 2500, label: "Wheel Rim" },
+          tire: { checked: false, cost: 1800, label: "Tire Damage" },
+          disc: { checked: false, cost: 1200, label: "Brake Disc" },
+          brake: { checked: false, cost: 900, label: "Brake Caliper" },
+          chain: { checked: false, cost: 1000, label: "Chain/Belt Drive" },
+          suspension: { checked: false, cost: 3000, label: "Suspension System" },
+          headlight: { checked: false, cost: 1200, label: "Headlight Assembly" },
+          taillight: { checked: false, cost: 800, label: "Taillight Assembly" },
+          indicator: { checked: false, cost: 600, label: "Turn Indicators" },
+          mirror: { checked: false, cost: 500, label: "Side Mirrors" },
+          mudguard: { checked: false, cost: 700, label: "Mudguards" },
+          seat: { checked: false, cost: 1500, label: "Seat Assembly" },
+          stand: { checked: false, cost: 600, label: "Side Stand" },
+          speedometer: { checked: false, cost: 2000, label: "Speedometer Unit" }
+        },
         damageNotes: "",
       }
     });
@@ -308,6 +387,36 @@ const EBikeDropOffForm = () => {
     setEntryMethod(null);
     setBookingId("");
     setPickupImages([]);
+  };
+
+  const handleDamageChange = (e) => {
+    const { name, checked } = e.target;
+    const damageKey = name.split('.')[2]; // Get the specific damage key
+
+    setFormData(prevState => {
+      const newState = {
+        ...prevState,
+        damageAssessment: {
+          ...prevState.damageAssessment,
+          damages: {
+            ...prevState.damageAssessment.damages,
+            [damageKey]: {
+              ...prevState.damageAssessment.damages[damageKey],
+              checked
+            }
+          }
+        }
+      };
+
+      // Calculate total cost
+      const totalCost = Object.values(newState.damageAssessment.damages)
+        .reduce((sum, damage) => {
+          return sum + (damage.checked ? damage.cost : 0);
+        }, 0);
+
+      setTotalDamageCost(totalCost);
+      return newState;
+    });
   };
 
   return (
@@ -521,12 +630,12 @@ const EBikeDropOffForm = () => {
             </div>
           )}
 
-          {/* Damage Assessment Section - Now comes after pickup images */}
+          {/* Damage Assessment Section */}
           <div className="border-t pt-6 border-gray-200">
-            <h3 className="text-lg font-semibold mb-4">Vehicle Condition Assessment</h3>
+            <h3 className="text-lg font-semibold mb-4">Vehicle Damage Assessment</h3>
             
-            <div className="mb-4">
-              <div className="flex items-center mb-2">
+            <div className="mb-4 flex justify-between items-center">
+              <div className="flex items-center">
                 <input
                   type="checkbox"
                   id="hasDamage"
@@ -539,130 +648,150 @@ const EBikeDropOffForm = () => {
                   Vehicle has damage
                 </label>
               </div>
+              {formData.damageAssessment.hasDamage && (
+                <div className="text-xl font-bold text-red-600">
+                  Total Damage Cost: ₹{totalDamageCost.toLocaleString()}
+                </div>
+              )}
             </div>
             
             {formData.damageAssessment.hasDamage && (
               <div className="bg-gray-50 p-4 rounded-lg">
-                <p className="text-sm text-gray-600 mb-3">Select all areas that have damage:</p>
-                
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="bodyDamage"
-                      name="damageAssessment.bodyDamage"
-                      checked={formData.damageAssessment.bodyDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="bodyDamage" className="ml-2 text-gray-700">
-                      Frame/Body Damage
-                    </label>
+                <div className="grid grid-cols-3 gap-6">
+                  {/* Battery & Electrical */}
+                  <div>
+                    <h4 className="font-semibold mb-3 text-blue-600">Battery & Electrical</h4>
+                    {Object.entries(formData.damageAssessment.damages)
+                      .filter(([key]) => ['batteryCell', 'bms', 'motorController', 'motorWinding', 'throttle', 'display', 'wiring', 'chargerPort'].includes(key))
+                      .map(([key, value]) => (
+                        <div key={key} className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            id={key}
+                            name={`damageAssessment.damages.${key}`}
+                            checked={value.checked}
+                            onChange={handleDamageChange}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <label htmlFor={key} className="ml-2 text-sm text-gray-700 flex-1">
+                            {value.label}
+                            <span className="text-red-600 ml-1">₹{value.cost}</span>
+                          </label>
+                        </div>
+                      ))}
                   </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="wheelDamage"
-                      name="damageAssessment.wheelDamage"
-                      checked={formData.damageAssessment.wheelDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="wheelDamage" className="ml-2 text-gray-700">
-                      Wheels/Tires Damage
-                    </label>
+
+                  {/* Mechanical Components */}
+                  <div>
+                    <h4 className="font-semibold mb-3 text-green-600">Mechanical Components</h4>
+                    {Object.entries(formData.damageAssessment.damages)
+                      .filter(([key]) => ['frame', 'fork', 'rim', 'tire', 'disc', 'brake', 'chain', 'suspension'].includes(key))
+                      .map(([key, value]) => (
+                        <div key={key} className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            id={key}
+                            name={`damageAssessment.damages.${key}`}
+                            checked={value.checked}
+                            onChange={handleDamageChange}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <label htmlFor={key} className="ml-2 text-sm text-gray-700 flex-1">
+                            {value.label}
+                            <span className="text-red-600 ml-1">₹{value.cost}</span>
+                          </label>
+                        </div>
+                      ))}
                   </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="seatDamage"
-                      name="damageAssessment.seatDamage"
-                      checked={formData.damageAssessment.seatDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="seatDamage" className="ml-2 text-gray-700">
-                      Seat Damage
-                    </label>
+
+                  {/* Accessories & Body */}
+                  <div>
+                    <h4 className="font-semibold mb-3 text-purple-600">Accessories & Body</h4>
+                    {Object.entries(formData.damageAssessment.damages)
+                      .filter(([key]) => ['headlight', 'taillight', 'indicator', 'mirror', 'mudguard', 'seat', 'stand', 'speedometer'].includes(key))
+                      .map(([key, value]) => (
+                        <div key={key} className="flex items-center mb-2">
+                          <input
+                            type="checkbox"
+                            id={key}
+                            name={`damageAssessment.damages.${key}`}
+                            checked={value.checked}
+                            onChange={handleDamageChange}
+                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          />
+                          <label htmlFor={key} className="ml-2 text-sm text-gray-700 flex-1">
+                            {value.label}
+                            <span className="text-red-600 ml-1">₹{value.cost}</span>
+                          </label>
+                        </div>
+                      ))}
                   </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="brakesDamage"
-                      name="damageAssessment.brakesDamage"
-                      checked={formData.damageAssessment.brakesDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="brakesDamage" className="ml-2 text-gray-700">
-                      Brakes Issues
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="lightsDamage"
-                      name="damageAssessment.lightsDamage"
-                      checked={formData.damageAssessment.lightsDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="lightsDamage" className="ml-2 text-gray-700">
-                      Lights/Indicators Issues
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="batteryDamage"
-                      name="damageAssessment.batteryDamage"
-                      checked={formData.damageAssessment.batteryDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="batteryDamage" className="ml-2 text-gray-700">
-                      Battery/Electrical Issues
-                    </label>
-                  </div>
-                  
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      id="otherDamage"
-                      name="damageAssessment.otherDamage"
-                      checked={formData.damageAssessment.otherDamage}
-                      onChange={handleCheckboxChange}
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                    />
-                    <label htmlFor="otherDamage" className="ml-2 text-gray-700">
-                      Other Issues
-                    </label>
-                  </div>
-                </div>
-                
-                <div className="mt-4">
-                  <label htmlFor="damageNotes" className="block mb-1 text-sm font-medium text-gray-700">
-                    Damage Description (required if damage is reported)
-                  </label>
-                  <textarea
-                    id="damageNotes"
-                    name="damageAssessment.damageNotes"
-                    value={formData.damageAssessment.damageNotes}
-                    onChange={handleInputChange}
-                    rows="3"
-                    className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    placeholder="Please describe the damage in detail..."
-                    required={formData.damageAssessment.hasDamage}
-                  ></textarea>
                 </div>
               </div>
             )}
+
+            {formData.damageAssessment.hasDamage && (
+              <div className="mt-6">
+                <label htmlFor="damageNotes" className="block mb-2 font-medium text-gray-700">
+                  Damage Notes (Optional)
+                </label>
+                <textarea
+                  id="damageNotes"
+                  name="damageAssessment.damageNotes"
+                  value={formData.damageAssessment.damageNotes}
+                  onChange={handleInputChange}
+                  placeholder="Enter any additional notes about the damage..."
+                  className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                  rows="3"
+                />
+              </div>
+            )}
           </div>
+
+          {/* Overtime Charges Display */}
+          {overtimeCharges > 0 && (
+            <div className="border-t pt-6 border-gray-200">
+              <div className="bg-yellow-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2 text-yellow-800">Overtime Charges</h3>
+                <p className="text-yellow-700">
+                  The vehicle was returned after the contracted duration.
+                </p>
+                <div className="mt-2 text-xl font-bold text-red-600">
+                  Overtime Fee: ₹{overtimeCharges.toLocaleString()}
+                </div>
+                <p className="mt-2 text-sm text-gray-600">
+                  This amount will be deducted from the user's wallet along with any damage charges.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Total Charges Display */}
+          {(overtimeCharges > 0 || totalDamageCost > 0) && (
+            <div className="border-t pt-6 border-gray-200">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold mb-2">Total Charges Summary</h3>
+                <div className="space-y-2">
+                  {totalDamageCost > 0 && (
+                    <div className="flex justify-between">
+                      <span>Damage Charges:</span>
+                      <span className="font-semibold">₹{totalDamageCost.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {overtimeCharges > 0 && (
+                    <div className="flex justify-between">
+                      <span>Overtime Charges:</span>
+                      <span className="font-semibold">₹{overtimeCharges.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="border-t pt-2 flex justify-between text-lg font-bold">
+                    <span>Total Deduction:</span>
+                    <span className="text-red-600">₹{(totalDamageCost + overtimeCharges).toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Optional Fields */}
           <div className="space-y-6">
@@ -767,12 +896,10 @@ const EBikeDropOffForm = () => {
             disabled={
               !isVerified || 
               isSubmitting || 
-              (!bookingId && entryMethod === "manual") ||
-              (formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes)
+              (!bookingId && entryMethod === "manual")
             }
             className={`w-full py-3 rounded-lg transition duration-200 ${
-              isVerified && !isSubmitting && (bookingId || entryMethod !== "manual") &&
-              !(formData.damageAssessment.hasDamage && !formData.damageAssessment.damageNotes)
+              isVerified && !isSubmitting && (bookingId || entryMethod !== "manual")
                 ? "bg-blue-600 text-white hover:bg-blue-700"
                 : "bg-gray-400 text-white cursor-not-allowed"
             }`}
