@@ -86,12 +86,14 @@ exports.createBooking = async (req, res) => {
         if (paymentMethod === "wallet") {
             const user = await User.findById(userId);
             user.wallet.balance -= totalAmount;
-            user.wallet.transactions.push({
+            user.wallet?.transactions?.push({
                 type: "DEBIT",
                 amount: totalAmount,
                 description: `Booking payment for vehicle ${vehicle.numberPlate}`,
             });
             await user.save();
+            console.log("User wallet balance after deduction:", user.wallet.balance);
+            console.log("User wallet transactions:", user.wallet.transactions);
         }
 
         res.status(201).json({

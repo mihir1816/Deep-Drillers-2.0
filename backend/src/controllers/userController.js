@@ -15,18 +15,7 @@ exports.getUserById = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            data: {
-                name: user.name,
-                email: user.email,
-                phone: user.phone,
-                drivingLicense: {
-                    number: user.drivingLicense.number,
-                    image: user.drivingLicense.image,
-                    verified: user.drivingLicense.verified
-                },
-                role: user.role,
-                _id: user._id
-            }
+            data: user // Send the entire user object
         });
     } catch (error) {
         console.error('Error fetching user:', error);
@@ -36,4 +25,4 @@ exports.getUserById = async (req, res) => {
             error: error.message
         });
     }
-}; 
+};

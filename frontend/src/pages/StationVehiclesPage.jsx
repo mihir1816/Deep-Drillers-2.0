@@ -33,6 +33,7 @@ function StationVehiclesPage() {
         if (data.success) {
           setStation(data.data)
           setVehicles(data.data.availableVehicles || [])
+          console.log(data.data.availableVehicles); 
         } else {
           throw new Error(data.message || "Failed to fetch station details")
         }
@@ -88,9 +89,14 @@ function StationVehiclesPage() {
     fetchStationDetails()
   }, [stationId])
 
-  const filteredVehicles =
-    selectedVehicleType === "all" ? vehicles : vehicles.filter((vehicle) => vehicle.type === selectedVehicleType)
+  const filteredVehicles = vehicles.filter(
+    (vehicle) =>
+      (selectedVehicleType === "all" || vehicle.type === selectedVehicleType) &&
+      vehicle.status === "AVAILABLE"
+  );
 
+  console.log(filteredVehicles);
+  
   const vehicleTypes = ["all", ...new Set(vehicles.map((v) => v.type).filter(Boolean))]
 
   if (loading) {

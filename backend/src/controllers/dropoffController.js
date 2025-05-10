@@ -63,6 +63,15 @@ exports.adminDropoffConfirm = async (req, res) => {
     // Deduct from wallet
     user.wallet.balance -= totalDeduction;
     console.log("User wallet balance after deduction:", user.wallet.balance);
+
+    if(totalDeduction > 0 ) {
+      user.wallet?.transactions?.push({   
+        type: "DEBIT",
+        amount: totalDeduction,
+        description: `Dropoff charges for vehicle ${booking.vehicle}`,
+      });
+    }
+
     await user.save();
 
     // Update booking with charges
@@ -98,22 +107,24 @@ exports.adminDropoffConfirm = async (req, res) => {
       booking.returnTime = new Date();
     }
 
-    // const vehicle = await Vehicle.findById(booking.vehicle);
-    // if (vehicle) {
-    //   if (parsedDamageAssessment.hasDamage) {
-    //     vehicle.status = "MAINTENANCE";
-    //     vehicle.damageNotes = parsedDamageAssessment.damageNotes || "";
-    //   } else {
-    //     vehicle.status = "AVAILABLE";
-    //   }
-    //   await vehicle.save();
-    // }
+    const vehicle = await Vehicle.findById(booking.vehicle);
+    if (vehicle) {
+      if (parsedDamageAssessment.hasDamage) {
+        vehicle.status = "MAINTENANCE";
+        vehicle.damageNotes = parsedDamageAssessment.damageNotes || "";
+      } else {
+        vehicle.status = "AVAILABLE";
+        console.log("vehical status updated to avaialable"); 
+      }
+      await vehicle.save();
+    }
 
     // Update station's available vehicles
     const station = await Station.findById(booking.station);
     if (station) {
       station.availableVehicles.push(booking.vehicle);
       await station.save();
+      console.log( "VEHICAL IS PUSHED AGAIN IN STATION ARRAY" ); 
     }
 
     booking.status = "completed";

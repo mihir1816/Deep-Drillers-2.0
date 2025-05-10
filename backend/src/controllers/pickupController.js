@@ -8,7 +8,7 @@ exports.adminPickup = async (req, res) => {
 
     console.log("pickupString", pickupString);
 
-    const bookingId = pickupString
+    const bookingId = pickupString ; 
 
     if (!bookingId) { 
       return res.status(400).json({ success: false, message: 'Booking ID is missing' });
@@ -20,14 +20,7 @@ exports.adminPickup = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Booking not found' });
     }
 
-    // const station = await Station.findById(booking.station);
-    // if (station) {
-    //   // Remove the vehicle ID from availableVehicles array
-    //   station.availableVehicles = station.availableVehicles.filter(
-    //     vehicleId => vehicleId.toString() !== booking.vehicle.toString()
-    //   );
-    //   await station.save();
-    // }
+
 
     res.status(200).json({ success: true, data: booking });
   } catch (error) {
@@ -78,7 +71,19 @@ exports.adminPickupConfirm = async (req, res) => {
       booking.pickupTime = new Date();
     }
 
+    const station = await Station.findById(booking.station);
+    console.log("got station data to remove vehical from array");
+    if (station) {
+      // Remove the vehicle ID from availableVehicles array
+      station.availableVehicles = station.availableVehicles.filter(
+        vehicleId => vehicleId.toString() !== booking.vehicle.toString()
+      );
+      await station.save();
+      console.log("vehical has been removed from array for this station"); 
+    }
+
     booking.status = "active";
+    console.log("boooking status to avtive"); 
     await booking.save();
 
     res.status(200).json({ 

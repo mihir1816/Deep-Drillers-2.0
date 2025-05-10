@@ -10,7 +10,7 @@ exports.getUserBookings = async (req, res) => {
     }
 
     // Find all bookings for the given userId and populate vehicle details
-    const bookings = await Booking.find({ user: userId }).populate('vehicle');
+    const bookings = await Booking.find({ user: userId })
 
     if (!bookings || bookings.length === 0) {
       return res.status(404).json({ success: false, message: 'No bookings found for this user' });
@@ -22,3 +22,5 @@ exports.getUserBookings = async (req, res) => {
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
+
+

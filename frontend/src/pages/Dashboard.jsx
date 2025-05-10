@@ -15,11 +15,13 @@ import { Sidebar, Header } from "../components/common"
 const Dashboard = () => {
   const [isDarkMode, setIsDarkMode] = useState(false)
 
-  // Apply dark mode class to body
+  // Apply dark mode class correctly for Tailwind
   useEffect(() => {
     if (isDarkMode) {
+      document.documentElement.classList.add('dark')
       document.body.setAttribute("data-theme", "dark")
     } else {
+      document.documentElement.classList.remove('dark')
       document.body.removeAttribute("data-theme")
     }
   }, [isDarkMode])
@@ -52,4 +54,3 @@ const Dashboard = () => {
 }
 
 export default Dashboard
-

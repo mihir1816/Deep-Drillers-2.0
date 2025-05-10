@@ -145,6 +145,7 @@ const EBikePickupForm = () => {
       toast.error("Identity verification removed")
     }
   } 
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault()

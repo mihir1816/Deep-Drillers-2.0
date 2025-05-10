@@ -17,7 +17,7 @@ function LocationsPage() {
         const params = new URLSearchParams({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          radius: 50,
+          radius: 5000,
         })
 
         console.log("Fetching stations with params:", params.toString())

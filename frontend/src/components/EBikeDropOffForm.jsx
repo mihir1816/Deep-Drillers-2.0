@@ -247,6 +247,7 @@ const EBikeDropOffForm = () => {
         const extraHours = Math.ceil(actualDuration - contractedDuration);
         const hourlyRate = data.data.vehicle?.pricePerHour || 0;
         const overtimeFee = extraHours * hourlyRate;
+        console.log("Overtime fee:**************************************************************************************************************", overtimeFee);
         setOvertimeCharges(overtimeFee);
       }
 

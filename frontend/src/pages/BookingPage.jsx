@@ -13,6 +13,7 @@ function BookingPage() {
   const [station, setStation] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
   const [bookingDetails, setBookingDetails] = useState({
     pickupDate: new Date().toISOString().split("T")[0],
     pickupTime: new Date().toTimeString().slice(0, 5),
@@ -24,7 +25,7 @@ function BookingPage() {
   const [bookingId, setBookingId] = useState(null)
   const [qrCode, setQrCode] = useState("")
 
-
+  
   useEffect(() => {
     const fetchVehicleDetails = async () => {
       setLoading(true)
