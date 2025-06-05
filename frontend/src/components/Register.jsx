@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import Loader from "./Loader";
-import PhoneVerification from "./PhoneVerification";
+import EmailVerification from "./EmailVerification";
 import toast from "react-hot-toast";
 import { CheckCircle } from "lucide-react";
 
@@ -20,16 +20,16 @@ const Register = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [uploadProgress, setUploadProgress] = useState(0);
-    const [showPhoneVerification, setShowPhoneVerification] = useState(false);
-    const [isPhoneVerified, setIsPhoneVerified] = useState(false);
+    const [showEmailVerification, setShowEmailVerification] = useState(false);
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
 
-        // Reset phone verification if phone number changes
-        if (e.target.name === "phone" && isPhoneVerified) {
-            setIsPhoneVerified(false);
+        // Reset email verification if email changes
+        if (e.target.name === "email" && isEmailVerified) {
+            setIsEmailVerified(false);
         }
     };
 
@@ -37,29 +37,37 @@ const Register = () => {
         setDrivingLicense(e.target.files[0]);
     };
 
-    const handlePhoneVerification = () => {
-        if (!formData.phone) {
-            toast.error("Please enter a phone number first");
+    const handleEmailVerification = () => {
+        if (!formData.email) {
+            toast.error("Please enter an email address first");
             return;
         }
-        setShowPhoneVerification(true);
+        
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            toast.error("Please enter a valid email address");
+            return;
+        }
+        
+        setShowEmailVerification(true);
     };
 
-    const handlePhoneVerified = (verifiedPhone) => {
-        setIsPhoneVerified(true);
-        setShowPhoneVerification(false);
-        // Optionally update the phone in formData with the verified one
-        if (verifiedPhone !== formData.phone) {
-            setFormData({ ...formData, phone: verifiedPhone });
+    const handleEmailVerified = (verifiedEmail) => {
+        setIsEmailVerified(true);
+        setShowEmailVerification(false);
+        // Optionally update the email in formData with the verified one
+        if (verifiedEmail !== formData.email) {
+            setFormData({ ...formData, email: verifiedEmail });
         }
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Check if phone is verified
-        if (!isPhoneVerified) {
-            toast.error("Please verify your phone number before registering");
+        // Check if email is verified
+        if (!isEmailVerified) {
+            toast.error("Please verify your email address before registering");
             return;
         }
 
@@ -81,8 +89,8 @@ const Register = () => {
                 throw new Error("Driving license image is required");
             }
 
-            // Add phone verification status
-            formDataToSend.append("isPhoneVerified", isPhoneVerified);
+            // Add email verification status
+            formDataToSend.append("isEmailVerified", isEmailVerified);
 
             console.log("Sending registration data:", formDataToSend);
 
@@ -171,49 +179,30 @@ const Register = () => {
                         >
                             Email
                         </label>
-                        <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
-                            onChange={handleChange}
-                            required
-                            disabled={loading}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="phone"
-                            className="block text-sm font-medium text-gray-700 mb-1"
-                        >
-                            Phone
-                        </label>
                         <div className="flex">
                             <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
+                                type="email"
+                                id="email"
+                                name="email"
+                                value={formData.email}
                                 onChange={handleChange}
                                 required
-                                disabled={loading || isPhoneVerified}
+                                disabled={loading || isEmailVerified}
                                 className={`flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                                    isPhoneVerified ? "bg-gray-50" : ""
+                                    isEmailVerified ? "bg-gray-50" : ""
                                 }`}
                             />
                             <button
                                 type="button"
-                                onClick={handlePhoneVerification}
-                                disabled={loading || isPhoneVerified}
+                                onClick={handleEmailVerification}
+                                disabled={loading || isEmailVerified}
                                 className={`px-4 py-2 rounded-r-lg ${
-                                    isPhoneVerified
+                                    isEmailVerified
                                         ? "bg-green-100 text-green-800 border border-green-300"
                                         : "bg-blue-600 text-white hover:bg-blue-700"
                                 }`}
                             >
-                                {isPhoneVerified ? (
+                                {isEmailVerified ? (
                                     <span className="flex items-center">
                                         <CheckCircle className="h-4 w-4 mr-1" />
                                         Verified
@@ -223,6 +212,25 @@ const Register = () => {
                                 )}
                             </button>
                         </div>
+                    </div>
+
+                    <div>
+                        <label
+                            htmlFor="phone"
+                            className="block text-sm font-medium text-gray-700 mb-1"
+                        >
+                            Phone
+                        </label>
+                        <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            value={formData.phone}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
                     </div>
 
                     <div>
@@ -290,11 +298,11 @@ const Register = () => {
                 <button
                     type="submit"
                     className={`w-full py-3 rounded-lg transition-colors ${
-                        isPhoneVerified
+                        isEmailVerified
                             ? "bg-blue-600 text-white hover:bg-blue-700"
                             : "bg-gray-400 text-white cursor-not-allowed"
                     }`}
-                    disabled={loading || !isPhoneVerified}
+                    disabled={loading || !isEmailVerified}
                 >
                     {loading ? "Registering..." : "Register"}
                 </button>
@@ -318,12 +326,12 @@ const Register = () => {
                 </a>
             </p>
 
-            {/* Phone Verification Modal */}
-            {showPhoneVerification && (
-                <PhoneVerification
-                    phoneNumber={formData.phone}
-                    onVerified={handlePhoneVerified}
-                    onCancel={() => setShowPhoneVerification(false)}
+            {/* Email Verification Modal */}
+            {showEmailVerification && (
+                <EmailVerification
+                    email={formData.email}
+                    onVerified={handleEmailVerified}
+                    onCancel={() => setShowEmailVerification(false)}
                 />
             )}
         </div>
