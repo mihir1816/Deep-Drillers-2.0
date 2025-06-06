@@ -30,7 +30,7 @@ function BookingPage() {
     const fetchVehicleDetails = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`http://localhost:5000/api/vehicle/${vehicleId}`, {
+        const response = await fetch(`https://evrental.vercel.app/api/vehicle/${vehicleId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",
@@ -49,7 +49,7 @@ function BookingPage() {
 
           // Fetch station details if stationId is available
           if (data.station) {
-            const stationResponse = await fetch(`http://localhost:5000/api/locations/${data.station}`, {
+            const stationResponse = await fetch(`https://evrental.vercel.app/api/locations/${data.station}`, {
               method: "GET",
               headers: {
                 Accept: "application/json",
@@ -142,7 +142,7 @@ function BookingPage() {
 
       console.log("Submitting booking:", bookingData)
 
-      const response = await fetch('http://localhost:5000/api/bookings', {
+      const response = await fetch('https://evrental.vercel.app/api/bookings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

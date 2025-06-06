@@ -72,7 +72,7 @@ const EBikePickupForm = () => {
       setIsSubmitting(true)
       
       // Call the initial pickup verification API
-      const response = await fetch("http://localhost:5000/api/admin-pickup", {
+      const response = await fetch("https://evrental.vercel.app/api/admin-pickup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -92,8 +92,8 @@ const EBikePickupForm = () => {
       
       // Make additional API calls to get vehicle and user details
       const [vehicleResponse, userResponse] = await Promise.all([
-        fetch(`http://localhost:5000/api/vehicle/${bookingData.data.vehicle}`),
-        fetch(`http://localhost:5000/api/users/${bookingData.data.user}`)
+        fetch(`https://evrental.vercel.app/api/vehicle/${bookingData.data.vehicle}`),
+        fetch(`https://evrental.vercel.app/api/users/${bookingData.data.user}`)
       ])
       
       if (!vehicleResponse.ok || !userResponse.ok) {
@@ -173,7 +173,7 @@ const EBikePickupForm = () => {
         formData.append('abc', photo)
       })
 
-      const response = await fetch("http://localhost:5000/api/admin-pickup-confirm", {
+      const response = await fetch("https://evrental.vercel.app/api/admin-pickup-confirm", {
         method: "POST",
         body: formData, // Don't set Content-Type header with FormData
       })

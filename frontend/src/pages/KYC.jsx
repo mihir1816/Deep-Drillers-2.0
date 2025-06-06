@@ -33,7 +33,7 @@ function KYC() {
     const makeApiRequest = async (endpoint, data, successMessage) => {
         try {
             const response = await axios.post(
-                `http://localhost:5000/api/kyc/${endpoint}`,
+                `https://evrental.vercel.app/api/kyc/${endpoint}`,
                 data,
                 {
                     headers: {

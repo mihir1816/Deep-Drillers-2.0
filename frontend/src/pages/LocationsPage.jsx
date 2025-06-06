@@ -22,7 +22,7 @@ function LocationsPage() {
 
         console.log("Fetching stations with params:", params.toString())
 
-        const response = await fetch(`http://localhost:5000/api/locations/nearby?${params}`, {
+        const response = await fetch(`https://evrental.vercel.app/api/locations/nearby?${params}`, {
           method: "GET",
           headers: {
             Accept: "application/json",

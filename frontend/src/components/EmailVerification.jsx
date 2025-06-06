@@ -17,7 +17,7 @@ const EmailVerification = ({ email, onVerified, onCancel }) => {
     const sendVerificationCode = async () => {
         setIsSending(true);
         try {
-            await axios.post("http://localhost:5000/api/auth/send-email-verification", {
+            await axios.post("https://evrental.vercel.app/api/auth/send-email-verification", {
                 email: email
             });
             
@@ -52,7 +52,7 @@ const EmailVerification = ({ email, onVerified, onCancel }) => {
 
         setIsLoading(true);
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/verify-email", {
+            const response = await axios.post("https://evrental.vercel.app/api/auth/verify-email", {
                 email: email,
                 code: verificationCode
             });

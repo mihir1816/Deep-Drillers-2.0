@@ -2,8 +2,8 @@
 
 import axios from "axios"
 
-const FLASK_API_URL = import.meta.env.VITE_FLASK_API_URL || "http://localhost:5000"
-const NODE_API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000"
+const FLASK_API_URL = import.meta.env.VITE_FLASK_API_URL || "https://evrental.vercel.app"
+const NODE_API_URL = import.meta.env.VITE_API_URL || "st:3000"
 
 export const verifyIdentity = async (licenseNumber, capturedFaceImage) => {
   try {

@@ -75,7 +75,7 @@ function UserDashboard() {
       const headers = {}
       if (authToken) headers['Authorization'] = `Bearer ${authToken}`
 
-      const response = await fetch(`http://localhost:5000/api/users/${userId}`, { headers })
+      const response = await fetch(`https://evrental.vercel.app/api/users/${userId}`, { headers })
       if (!response.ok) {
         if ([401,403,404].includes(response.status)) {
           localStorage.removeItem("user")
@@ -136,7 +136,7 @@ function UserDashboard() {
       const headers = { 'Content-Type': 'application/json' }
       if (token) headers['Authorization'] = `Bearer ${token}`
 
-      const res = await fetch(`http://localhost:5000/api/user-bookings/${userId}`, { headers })
+      const res = await fetch(`https://evrental.vercel.app/api/user-bookings/${userId}`, { headers })
       if (!res.ok) throw new Error(`Failed to fetch bookings: ${res.status}`)
 
       const result = await res.json()

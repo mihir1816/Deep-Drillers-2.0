@@ -22,7 +22,7 @@ function Login() {
 
     try {
       // Send login request to backend
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData)
+      const response = await axios.post("https://evrental.vercel.app/api/auth/login", formData)
 
       console.log("Login successful:", response.data)
 

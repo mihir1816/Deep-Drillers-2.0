@@ -16,7 +16,7 @@ function StationVehiclesPage() {
     const fetchStationDetails = async () => {
       setLoading(true)
       try {
-        const response = await fetch(`http://localhost:5000/api/locations/${stationId}`, {
+        const response = await fetch(`https://evrental.vercel.app/api/locations/${stationId}`, {
           method: "GET",
           headers: {
             Accept: "application/json",

@@ -184,7 +184,7 @@ const EBikeDropOffForm = () => {
       setIsSubmitting(true)
       
       // Call the API with the QR code data
-      const response = await fetch("http://localhost:5000/api/admin-pickup", {
+      const response = await fetch("https://evrental.vercel.app/api/admin-pickup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -204,8 +204,8 @@ const EBikeDropOffForm = () => {
       }
 
       const [vehicleResponse, userResponse] = await Promise.all([
-        fetch(`http://localhost:5000/api/vehicle/${data.data.vehicle}`),
-        fetch(`http://localhost:5000/api/users/${data.data.user}`)
+        fetch(`https://evrental.vercel.app/api/vehicle/${data.data.vehicle}`),
+        fetch(`https://evrental.vercel.app/api/users/${data.data.user}`)
       ])
       
       if (!vehicleResponse.ok || !userResponse.ok) {
@@ -308,7 +308,7 @@ const EBikeDropOffForm = () => {
       });
 
       // Send confirmation to the admin-dropoff-confirm endpoint
-      const confirmResponse = await fetch("http://localhost:5000/api/admin-dropoff-confirm", {
+      const confirmResponse = await fetch("https://evrental.vercel.app/api/admin-dropoff-confirm", {
         method: "POST",
         body: formDataToSend, // Send FormData instead of JSON
       });
