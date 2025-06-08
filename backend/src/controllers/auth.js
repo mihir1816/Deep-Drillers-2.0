@@ -89,22 +89,22 @@ exports.register = async (req, res) => {
             });
         }
 
-        console.log("Request files:", req.files);
-        console.log("Request body:", req.body);
+        // console.log("Request files:", req.files);
+        // console.log("Request body:", req.body);
 
-        const drivingLicenseImage = req.files?.drivingLicense && req.files.drivingLicense[0]?.path;
-        console.log("Driving license image path:", drivingLicenseImage);
+        // const drivingLicenseImage = req.files?.drivingLicense && req.files.drivingLicense[0]?.path;
+        // console.log("Driving license image path:", drivingLicenseImage);
 
-        if (!drivingLicenseImage) {
-            return res.status(400).json({
-                success: false,
-                message: "drivingLicenseImage is required",
-            });
-        }
+        // if (!drivingLicenseImage) {
+        //     return res.status(400).json({
+        //         success: false,
+        //         message: "drivingLicenseImage is required",
+        //     });
+        // }
 
-        console.log("About to upload to cloudinary with path:", drivingLicenseImage);
-        const drivingLicense = await uploadOnCloudinary(drivingLicenseImage);
-        console.log("Cloudinary response:", drivingLicense);
+        // console.log("About to upload to cloudinary with path:", drivingLicenseImage);
+        // const drivingLicense = await uploadOnCloudinary(drivingLicenseImage);
+        // console.log("Cloudinary response:", drivingLicense);
 
         // Create new user with proper driving license structure
         const uniqueQRCode = 'QR_' + Date.now() + '_' + Math.round(Math.random() * 1000000);
@@ -116,7 +116,8 @@ exports.register = async (req, res) => {
             qrCode: uniqueQRCode,
             drivingLicense: {
                 number: drivingLicenseNumber,
-                image: drivingLicense?.url || "" ,
+                // image: drivingLicense?.url || "" ,
+                image: "" ,
                 verified: false,
             },
         });
