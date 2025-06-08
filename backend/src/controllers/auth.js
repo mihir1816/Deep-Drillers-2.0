@@ -7,10 +7,7 @@ const { upload } = require("../middleware/multer.middleware.js");
 const { uploadOnCloudinary } = require("../utils/cloudinary.js");
 const fs = require("fs");
 
-// JWT Secret
-const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
 
-// Generate JWT Token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRE,
@@ -30,7 +27,7 @@ exports.verifyToken = async (req, res) => {
       }
       
       // Verify token
-      const decoded = jwt.verify(token, JWT_SECRET);
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       
       // Find user by id
       const user = await User.findById(decoded.userId);
@@ -129,7 +126,7 @@ exports.register = async (req, res) => {
         // Create token
         const token = jwt.sign(
             { userId: user._id, role: user.role },
-            JWT_SECRET,
+            'd8f3e7a1b9c0f2e4d6a8b7c9d0e2f4a6',
             { expiresIn: "24h" }
         );
 
@@ -187,14 +184,11 @@ exports.login = async (req, res) => {
             });
         }
 
-        // Define a hardcoded secret key for development
-        // IMPORTANT: In production, you should use environment variables
-        const JWT_SECRET = "EV_Rental_Platform_Secret_Key_2023!@#$%^&*";
 
         // Create JWT token with the hardcoded secret
         const token = jwt.sign(
             { userId: user._id, email: user.email },
-            JWT_SECRET,
+            process.env.JWT_SECRET,
             { expiresIn: "3d" }
         );
 
