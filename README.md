@@ -58,13 +58,13 @@ This project simplifies building scalable, feature-rich applications for fleet a
 
 - 🛠️ **Vehicle Data Schema**: Defines consistent vehicle attributes, statuses, and damages for efficient fleet tracking.
 
-- 📩 **Messaging & Notifications**: Enables reliable email and SMS alerts via integrated services like Nodemailer and Twilio.
+- 📩 **Messaging & Notifications**: Enables reliable email via integrated services like Nodemailer.
 
 - 🎨 **Frontend Setup**: React-based UI with Tailwind CSS, QR code scanning, and real-time updates for a polished user experience.
 
 - 🔐 **Secure Backend**: Modular API with authentication, location services, booking, and payment processing.
 
-- 🖼️ **Media & KYC**: Handles image uploads, facial verification, and Aadhaar-based identity validation.
+- 🖼️ **Media**: Handles image uploads and manual varification.
 
 - ⚙️ **Utility & Integration**: Utilities for QR code generation, email, and cloud media management streamline development.
 
@@ -102,11 +102,14 @@ Build Deep-Drillers-2.0 from the source and install dependencies:
     ```bash
     cd Deep-Drillers-2.0
     ```
-3. **Create a .env file in the root directory and add the required environment variables:**
+3. ⚙️ Environment Variables
 
+Create a `.env` file inside the `backend/` directory and add the following:
+
+```env
 PORT=5000
 MONGODB_URI=your_mongodb_connection_uri
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=your_jwt_secret
 JWT_EXPIRE=24h
 NODE_ENV=development
 CORS_ORIGIN=*
@@ -117,17 +120,20 @@ CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 
 GMAIL_USER=your_gmail_address
 GMAIL_APP_PASSWORD=your_gmail_app_password
-  
+```
+
+---
 
 4. **Install the dependencies:**
-
-    1. cd backend\
-    Using [npm](https://www.npmjs.com/):
-
+    ```bash
+    cd backend\
+    ```
     ```bash
     npm install
     ```
-    2. cd frontend\
+    ```bash
+    cd frontend\
+    ```
    ```bash
     npm install
     ```
@@ -139,12 +145,16 @@ GMAIL_APP_PASSWORD=your_gmail_app_password
 
 ```bash
 cd backend/src
+```
+```bash
 node app.js
 ```
 ### Start the frontend:
 
 ```bash
 cd frontend
+```
+```bash
 npm run dev
 ```
 
